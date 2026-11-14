@@ -21,7 +21,7 @@ You stay in charge of what gets sent.
 ## Quick start
 
 ```bash
-git clone https://github.com/giacomo-galletti/ai-job-autopilot.git
+git clone https://github.com/PixelVision-Agency/ai-job-autopilot.git
 cd ai-job-autopilot
 claude            # or: codex
 ```

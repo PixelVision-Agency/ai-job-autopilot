@@ -41,7 +41,7 @@ Most CLIs have zero runtime dependencies; `bun install` in a CLI folder only pul
 ## 2. Clone
 
 ```bash
-git clone https://github.com/giacomo-galletti/ai-job-autopilot.git
+git clone https://github.com/PixelVision-Agency/ai-job-autopilot.git
 cd ai-job-autopilot
 ```
 
