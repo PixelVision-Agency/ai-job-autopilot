@@ -1,5 +1,5 @@
 ---
-framework_version: 1.2.0
+framework_version: 1.2.1
 ---
 
 # Writing Style Guide
@@ -51,7 +51,7 @@ The cover letter is **not a CV repetition**. It should be forward-looking:
 ## Cover Letter Structure
 
 ### Opening Paragraph
-- State the role and why you're writing (1 sentence)
+- Open on something specific to the company or role, never "I am applying for the ... role" (the subject line names the role)
 - Immediately connect your background to the role (1-2 sentences)
 - Make it specific to this company/role, not a template opener
 

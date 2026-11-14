@@ -1,5 +1,5 @@
 ---
-framework_version: 1.0.2
+framework_version: 1.0.3
 ---
 
 # Cover Letter Templates and Tailoring Guide
@@ -147,10 +147,15 @@ The font wrapper is mandatory — if you just move `\begin{itemize}` outside `\l
 - If you know the team: "Dear [Company] hiring team,"
 - Generic: "Dear [Company]," (avoid "To whom it may concern")
 
+### Opening, gaps and closing
+- **Open on something specific to this company or role** (their product, a problem the posting names, the team's work). Never "I am applying for the ... role": the subject line already names it.
+- **Gaps: name at most the one or two that matter most for this role, briefly, or none.** No stock gap paragraph and no list of "I have not" admissions.
+- **Engagement and invoicing only where engagement type matters** (a country lock, a contract or day-rate role, a payroll question): one sentence in this letter's own words, never a closing reused from another letter or the sample wording under "How to say it" in `profile/profile.md`.
+
 ### Length - Hard 1-Page Limit
 - Target: 1 page including signature block
 - Maximum: **never exceed 1 page**
-- **Word budget: 250-300 words** of body text (not counting LaTeX markup). This is the safe maximum. 350 words will overflow.
+- **Word budget: about 300-400 words** of body text with the active `designed` template (letters of about 470 words still fit its page). The stock `cover.cls` overflows past about 300 words (not counting LaTeX markup), so keep it to 250-300 there.
 - **Always count**: opening paragraph + bullet list paragraph + closing paragraph = 3 blocks. Add a 4th only if the others are short.
 - When adding company-specific content, trim other content to compensate rather than adding net length
 
