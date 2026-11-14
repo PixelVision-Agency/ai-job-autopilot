@@ -47,7 +47,7 @@ profile in the same turn.
 7. Email replies (recruiter or employer messages) are Gmail drafts only, threaded under the original and never sent: `.claude/skills/job-application-assistant/10-email-replies.md`.
 
 ## Standing routine
-The full apply cycle (discover with `portal-scout` and `alert-scout` in parallel, apply or draft per the gates in `profile/deal-breakers.md`, then finish with `/mail-cleanup`, then close any browser windows opened) is configured by the candidate's rules in `profile/deal-breakers.md` ("Apply gates", "Standing rules", "Housekeeping rules"). Follow those rules exactly; do not ask per step.
+A request like "check the emails and apply" means the full cycle in `.claude/commands/cycle.md` (`/cycle`): discover with `portal-scout` and `alert-scout` in parallel, drop closed postings with `tools/liveness.py`, apply or draft per the gates in `profile/deal-breakers.md`, settle every job-alert role, finish with `/mail-cleanup`, then close any browser windows opened. The gates are the candidate's rules in `profile/deal-breakers.md` ("Apply gates", "Standing rules", "Housekeeping rules"). Follow them exactly; do not ask per step.
 
 **Important:** when mentioning agentic coding or AI tooling in a CV or cover letter, name the specific tool the profile lists (for example the coding agent the candidate actually uses), never a generic phrase.
 

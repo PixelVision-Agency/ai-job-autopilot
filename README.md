@@ -57,6 +57,8 @@ Then try:
 | `/submit` | Fills an application form in a browser; you approve the send |
 | `/interview` | Builds a stage-specific interview prep pack |
 | `/outcome` | Records results (interviews, offers, rejections) and archives what was sent |
+| `/cycle` | The whole routine in one go: job-alert emails and boards in parallel, drop closed postings, apply within your gates, clean the inbox, report |
+| `/patterns` | Outcome rates by fit band, role type, channel and ATS: what is working and what is wasting sends |
 | `/upskill`, `/expand` | Skill-gap analysis; enrich the profile from public sources you link |
 | `/job-alerts`, `/mail-cleanup`, `/gmail-sync` | Optional Gmail job-alert and confirmation handling |
 | `/add-portal`, `/add-template` | Add a job board or a CV/letter template of your own |
@@ -65,7 +67,9 @@ Then try:
 
 Bundled job-board CLIs (in `.agents/skills/`, need [bun](https://bun.sh)): LinkedIn, Himalayas (remote),
 freehire (tech), Adzuna (about eleven countries, free API key), and Danish boards (Jobindex, Jobnet,
-Jobdanmark, Jobbank). `/onboard` enables only the ones that fit you and uses web search to find
+Jobdanmark, Jobbank). `ats-boards-search` (plain Python, no bun) reads the public Greenhouse, Ashby and
+Lever boards of the companies you list in `profile/ats-companies.txt`, so their roles show up the day
+they are posted. `/onboard` enables only the ones that fit you and uses web search to find
 well-known boards for your field and country; `/add-portal` builds a CLI for any board that permits it.
 
 ## Privacy model

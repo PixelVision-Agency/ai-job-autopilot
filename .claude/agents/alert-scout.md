@@ -1,6 +1,6 @@
 ---
 name: alert-scout
-description: Reads the user's job-alert emails in Gmail (/job-alerts), records them in profile/job_alerts/alerts.json and returns the leads. Used by the "check emails and apply" cycle, in parallel with portal-scout.
+description: Reads the user's job-alert emails in Gmail (/job-alerts), records them in profile/job_alerts/alerts.json and returns the leads. Used by the "check emails and apply" cycle (/cycle), in parallel with portal-scout.
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, Skill
 ---
 
