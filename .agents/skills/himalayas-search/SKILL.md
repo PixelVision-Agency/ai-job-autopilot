@@ -39,7 +39,9 @@ bun run .agents/skills/himalayas-search/cli/src/cli.ts detail <guid|url> [--max-
 
 ### Search flags
 
-**Run its queries one after another.** Firing several searches at once (each pages through the feed) gets HTTP 429 from himalayas.app, seen 2026-10-04 when four recipe queries ran in parallel; `helpers.ts` backs off, but not enough for that load. Run them sequentially, or combine alternatives into one `--query "a OR b"`. Other portals can still run alongside it.
+**Run its queries one after another.** Firing several searches at once (each pages through the feed) gets HTTP 429 from himalayas.app, seen 2026-10-04 when four recipe queries ran in parallel; `helpers.ts` backs off, but not enough for that load. Run them sequentially, or combine alternatives into one `--query "a OR b"`. Other portals can still run alongside it. A 429 now waits for the server's `Retry-After` (or up to 30 s).
+
+**Coverage depth.** The feed is a firehose: the default `--pages 40` (800 postings) only reaches back about one day, and `--pages 200` (4,000 postings, ~2 minutes) reaches back about two days. For a 14-day sweep run one combined `OR` query with `--pages 200` in the background, expect the "coverage stopped" warning, and do not treat it as a failure.
 
 | Flag | Meaning |
 |---|---|

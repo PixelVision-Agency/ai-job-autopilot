@@ -63,10 +63,12 @@ node .agents/skills/adzuna-search/cli/src/cli.ts search [flags]
 | `--results-per-page <n>` | Per-country page size (default 20, max 50) |
 | `--page <n>` | Page number, 1-indexed (default 1) |
 | `--limit <n>` | Cap total rows after merging + ranking |
-| `--format <fmt>` | `json` (default for processing) \| `table` \| `plain` |
+| `--format <fmt>` | `table` (default) \| `json` (pass it for processing) \| `plain` |
 
 Results from all requested countries are merged and **re-ranked by salary
-descending**; listings without a published salary sort last (never dropped).
+descending**, converted to EUR at fixed rates so currencies compare. Published salaries rank
+before Adzuna's estimates (`salaryPredicted`), and listings with no salary at all come last, so
+`--limit` cuts those first. Requests time out after 15 s instead of hanging the scrape.
 
 ### Detail
 

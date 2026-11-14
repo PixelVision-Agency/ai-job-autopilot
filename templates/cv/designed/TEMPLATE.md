@@ -19,6 +19,10 @@ tailored version.
 order identical to visual order. Application wording is intentionally tailored from your
 profile content.
 
+When a posting asks a question to be answered on the CV itself ("tell us why you want to work
+here"), set `ANSWER_TITLE` and `ANSWER` in the application module: the ATS resume prints them
+as their own section. Leave them out and nothing is drawn.
+
 The designed variant exists for the case where the application reaches a person directly -
 emailing a hiring manager, a founder, a referral. Attach it alongside, or instead, when there
 is a named human on the other end. Everywhere else, a parser reads the CV before a person

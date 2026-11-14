@@ -167,17 +167,18 @@ class Flow:
     def two_columns(self, left, right, row_height=16):
         gap = 22
         column_width = (RIGHT - MARGIN - gap) / 2
-        rows = max(len(left), len(right))
-        self.space_for(rows * row_height)
-        for index in range(rows):
-            if index < len(left):
-                draw_text(self.page, MARGIN, self.y, "•")
-                draw_text(self.page, MARGIN + 14, self.y, left[index])
-            if index < len(right):
-                right_x = MARGIN + column_width + gap
-                draw_text(self.page, right_x, self.y, "•")
-                draw_text(self.page, right_x + 14, self.y, right[index])
-            self.y += row_height
+        # A long item wraps inside its own column instead of running into the other one.
+        rows = [[wrap(column[i], column_width - 14) if i < len(column) else [] for column in (left, right)]
+                for i in range(max(len(left), len(right)))]
+        heights = [row_height + (max(len(cell) for cell in row) - 1) * LEADING for row in rows]
+        self.space_for(sum(heights))
+        for row, height in zip(rows, heights):
+            for x, lines in zip((MARGIN, MARGIN + column_width + gap), row):
+                if lines:
+                    draw_text(self.page, x, self.y, "•")
+                for n, line in enumerate(lines):
+                    draw_text(self.page, x + 14, self.y + n * LEADING, line)
+            self.y += height
 
 
 def _layout(pdf, cv) -> None:
@@ -200,6 +201,11 @@ def _layout(pdf, cv) -> None:
     flow.section("Profile")
     flow.paragraph(cv.PROFILE)
     flow.y += SECTION_GAP
+
+    if getattr(cv, "ANSWER", None):  # optional: a posting's own question, answered on the CV
+        flow.section(cv.ANSWER_TITLE, first_block_height=LEADING * 3)
+        flow.paragraph(cv.ANSWER)
+        flow.y += SECTION_GAP
 
     flow.section("Skills", first_block_height=len(cv.ATS_SKILLS_LEFT) * 16)
     flow.two_columns(cv.ATS_SKILLS_LEFT, cv.ATS_SKILLS_RIGHT)

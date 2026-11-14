@@ -44,7 +44,7 @@ const lower = (s: string) => s.toLowerCase()
 /** A job matches the query when any word of it appears in title, excerpt or categories. */
 function matchesQuery(job: HimalayasJob, query: string): boolean {
   const haystack = lower(
-    [job.title, job.excerpt, job.categories.join(" "), job.parentCategories.join(" ")].join(" "),
+    [job.title, job.excerpt, (job.categories ?? []).join(" "), (job.parentCategories ?? []).join(" ")].join(" "),
   )
   return query
     .split(/\s+OR\s+|\s*\|\s*/i)
@@ -131,7 +131,7 @@ export async function runSearch(opts: SearchOpts, getPage = fetchPage): Promise<
       oldest = oldest === null ? job.pubDate : Math.min(oldest, job.pubDate)
       if (cutoff !== null && job.pubDate < cutoff) continue
       if (opts.query && !matchesQuery(job, opts.query)) continue
-      if (opts.category?.length && !matchesAny([...job.categories, ...job.parentCategories], opts.category)) continue
+      if (opts.category?.length && !matchesAny([...(job.categories ?? []), ...(job.parentCategories ?? [])], opts.category)) continue
       if (opts.seniority?.length && !matchesAny(job.seniority ?? [], opts.seniority)) continue
       if (opts.hireableFrom && !hireableFrom(job, opts.hireableFrom)) continue
       if (opts.timezone !== undefined && !timezoneOverlaps(job, opts.timezone, opts.timezoneTolerance)) continue

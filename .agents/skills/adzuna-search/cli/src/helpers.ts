@@ -214,7 +214,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     let response: Response
     try {
-      response = await fetch(url)
+      response = await fetch(url, { signal: AbortSignal.timeout(15000) })
     } catch (err) {
       if (attempt === maxRetries) {
         throw new AdzunaError(
@@ -301,6 +301,7 @@ export async function fetchDetailText(url: string): Promise<string> {
       Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
     },
     redirect: "follow",
+    signal: AbortSignal.timeout(15000),
   })
   if (!response.ok) {
     throw new AdzunaError(
@@ -315,11 +316,18 @@ export async function fetchDetailText(url: string): Promise<string> {
 
 // ---- Ranking + formatting ----
 
-/** A single comparable salary signal for ranking (max preferred, else min). */
+// EUR per unit of each currency, so a merged multi-country list ranks like for like.
+// ponytail: fixed rates (2026-10); refresh if a currency moves more than ~10%.
+const EUR_PER: Record<string, number> = {
+  EUR: 1, USD: 0.92, GBP: 1.17, CAD: 0.67, AUD: 0.6, NZD: 0.55, SGD: 0.68,
+  PLN: 0.23, BRL: 0.17, MXN: 0.05, ZAR: 0.05, INR: 0.011,
+}
+
+/** A single comparable salary signal for ranking, in EUR (max preferred, else min). */
 export function salarySignal(job: JobCard): number {
-  if (job.salaryMax != null) return job.salaryMax
-  if (job.salaryMin != null) return job.salaryMin
-  return -1 // unknown salary sorts last
+  const value = job.salaryMax ?? job.salaryMin
+  if (value == null) return -1 // unknown salary sorts last
+  return value * (EUR_PER[job.currency] ?? 1)
 }
 
 /** Sort jobs by salary descending; unknown-salary jobs go last (stable). */
@@ -327,7 +335,9 @@ export function rankBySalary(jobs: JobCard[]): JobCard[] {
   return [...jobs]
     .map((job, i) => ({ job, i }))
     .sort((a, b) => {
-      const d = salarySignal(b.job) - salarySignal(a.job)
+      // Published salaries before Adzuna's own estimates, then by EUR value.
+      const tier = Number(!b.job.salaryPredicted) - Number(!a.job.salaryPredicted)
+      const d = tier || salarySignal(b.job) - salarySignal(a.job)
       return d !== 0 ? d : a.i - b.i
     })
     .map((x) => x.job)

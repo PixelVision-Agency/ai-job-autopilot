@@ -46,7 +46,7 @@ export interface FeedPage {
 }
 
 export class HttpError extends Error {
-  constructor(readonly status: number, message: string) {
+  constructor(readonly status: number, message: string, readonly retryAfterMs?: number) {
     super(message)
   }
 }
@@ -65,7 +65,12 @@ export async function fetchJson(url: string, timeoutMs = 30000, maxRetries = 5):
         signal: controller.signal,
       })
       if (res.status === 429 || res.status >= 500) {
-        throw new HttpError(res.status, `himalayas returned HTTP ${res.status}`)
+        const retryAfter = Number(res.headers.get("retry-after"))
+        throw new HttpError(
+          res.status,
+          `himalayas returned HTTP ${res.status}`,
+          Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : undefined,
+        )
       }
       if (!res.ok) {
         throw new HttpError(res.status, `himalayas returned HTTP ${res.status} for ${url}`)
@@ -76,7 +81,12 @@ export async function fetchJson(url: string, timeoutMs = 30000, maxRetries = 5):
       const retriable =
         err instanceof HttpError ? err.status === 429 || err.status >= 500 : true
       if (!retriable || attempt === maxRetries) break
-      const backoff = Math.min(2 ** attempt * 500, 8000)
+      // A 429 gets the server's Retry-After, else a longer ladder (up to 30s): the 8s cap below
+      // was too short once a long scan tripped the rate limit.
+      const is429 = err instanceof HttpError && err.status === 429
+      const backoff = is429
+        ? Math.min((err as HttpError).retryAfterMs ?? 2 ** attempt * 2000, 30000)
+        : Math.min(2 ** attempt * 500, 8000)
       await sleep(backoff + Math.random() * 250)
     } finally {
       clearTimeout(timer)

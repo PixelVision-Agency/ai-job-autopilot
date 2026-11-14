@@ -183,7 +183,7 @@ async function main() {
     if (j.employmentType) console.log(`Employment: ${j.employmentType}`)
     if (j.salary) console.log(`Salary: ${j.salary}`)
     if (j.seniority.length) console.log(`Seniority: ${j.seniority.join(", ")}`)
-    if (j.categories.length) console.log(`Categories: ${j.categories.slice(0, 12).join(", ")}`)
+    if (j.categories?.length) console.log(`Categories: ${j.categories.slice(0, 12).join(", ")}`)
     console.log(`Expires: ${j.expires}`)
     console.log(`URL: ${j.url}\n`)
     console.log(j.description)

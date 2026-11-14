@@ -33,8 +33,8 @@ function job(partial: Partial<JobCard>): JobCard {
 }
 
 test("salarySignal prefers max, falls back to min, then -1", () => {
-  assert.equal(salarySignal(job({ salaryMin: 100, salaryMax: 200 })), 200)
-  assert.equal(salarySignal(job({ salaryMin: 100, salaryMax: null })), 100)
+  assert.equal(salarySignal(job({ salaryMin: 100, salaryMax: 200, currency: "EUR" })), 200)
+  assert.equal(salarySignal(job({ salaryMin: 100, salaryMax: null, currency: "EUR" })), 100)
   assert.equal(salarySignal(job({ salaryMin: null, salaryMax: null })), -1)
 })
 
@@ -47,6 +47,15 @@ test("rankBySalary sorts desc and pushes unknown-salary jobs last, stably", () =
   ]
   const ranked = rankBySalary(jobs).map((j) => j.id)
   assert.deepEqual(ranked, ["c", "a", "b", "d"]) // b before d = stable
+})
+
+test("rankBySalary compares currencies in EUR and puts estimates after published salaries", () => {
+  const jobs = [
+    job({ id: "aud", salaryMax: 150000, currency: "AUD" }),
+    job({ id: "eur", salaryMax: 120000, currency: "EUR" }),
+    job({ id: "est", salaryMax: 200000, currency: "USD", salaryPredicted: true }),
+  ]
+  assert.deepEqual(rankBySalary(jobs).map((j) => j.id), ["eur", "aud", "est"])
 })
 
 test("formatSalary renders ranges, single values, est. flag, and em dash", () => {
