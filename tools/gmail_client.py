@@ -18,7 +18,8 @@ Reads use BODY.PEEK, so scanning never marks mail as read. Nothing here sends ma
     python3 tools/gmail_client.py search "newer_than:2d" [--trash|--drafts] [--limit 50]
     python3 tools/gmail_client.py read <id> [--trash|--drafts] [--max 4000]
     python3 tools/gmail_client.py trash <id> [--drafts]                # e.g. a stale reply draft
-    python3 tools/gmail_client.py draft-reply <id> < reply.txt     # saved to Drafts, never sent
+    python3 tools/gmail_client.py draft-reply <id> [--sent|--trash] < reply.txt  # saved to Drafts, never sent
+    python3 tools/gmail_client.py clean-drafts                     # trash drafts you already sent
     python3 tools/gmail_client.py draft-new --to a@b.c --subject S --attach 'path.pdf=Shown Name.pdf' < body.txt
 """
 
@@ -183,7 +184,9 @@ def build_reply(raw, text, me=None):
         subject = "Re: " + subject
     reply = EmailMessage()
     reply["From"] = me
-    reply["To"] = str(orig["Reply-To"] or orig["From"])
+    # Replying to your own sent message (a follow-up): write to whoever it went to.
+    own = bool(ACCOUNT) and ACCOUNT.lower() in str(orig["From"]).lower()
+    reply["To"] = str(orig["To"] if own else orig["Reply-To"] or orig["From"])
     cc = [a for a in getaddresses([str(v) for v in orig.get_all("Cc", [])]) if a[1] and a[1].lower() != _account().lower()]
     if cc:
         reply["Cc"] = ", ".join(formataddr(a) for a in cc)
@@ -300,7 +303,7 @@ def folder(role):
         _FOLDERS = {}
         for raw in _imap("list")[1]:
             flags, name = parse_list_line(raw.decode())
-            for flag in ("\\Trash", "\\Drafts"):
+            for flag in ("\\Trash", "\\Drafts", "\\Sent"):
                 if flag in flags:
                     _FOLDERS[flag[1:].lower()] = name
     if role not in _FOLDERS:
@@ -399,6 +402,35 @@ def trash(msgid, mailbox="inbox"):
     return typ == "OK"
 
 
+def trash_sent_drafts():
+    """Trash drafts whose thread has a later message in Sent Mail. Some mail clients send a fresh copy
+    and leave the IMAP-appended draft behind. Returns the trashed draft ids."""
+    def thread_dates(box):
+        _select(box)
+        _, data = _imap("uid", "SEARCH", "ALL")
+        ids = data[0].split()
+        if not ids:
+            return []
+        _, data = _imap("uid", "FETCH", b",".join(ids), "(X-GM-MSGID X-GM-THRID BODY.PEEK[HEADER.FIELDS (DATE)])")
+        out = []
+        for part in data:
+            if isinstance(part, tuple):
+                m = re.search(rb"X-GM-MSGID (\d+) X-GM-THRID (\d+)|X-GM-THRID (\d+) X-GM-MSGID (\d+)", part[0])
+                date = re.search(rb"Date: (.+)", part[1])
+                if m and date:
+                    msg, thr = (m[1], m[2]) if m[1] else (m[4], m[3])
+                    out.append((msg.decode(), thr.decode(), parsedate_to_datetime(date[1].decode().strip())))
+        return out
+    drafts = thread_dates("drafts")
+    if not drafts:
+        return []
+    sent = {}
+    for _, thr, when in thread_dates("sent"):
+        sent[thr] = max(when, sent.get(thr, when))
+    done = [msg for msg, thr, when in drafts if thr in sent and sent[thr] > when]
+    return [msg for msg in done if trash(msg, "drafts")]
+
+
 def draft_reply(msgid, text, mailbox="inbox"):
     """Save a threaded reply in Drafts. It shows up in any mail client's Drafts too. Never sends."""
     raw = _raw(msgid, mailbox)
@@ -451,8 +483,11 @@ def main():
         if p is not t:
             box.add_argument("--trash", action="store_true", help="look in Gmail's Trash (Bin)")
         box.add_argument("--drafts", action="store_true", help="look in Drafts")
+    sub.add_parser("clean-drafts")
     d = sub.add_parser("draft-reply")
     d.add_argument("id")
+    d.add_argument("--sent", action="store_true", help="the original is in Sent Mail (follow-up to your own email)")
+    d.add_argument("--trash", action="store_true", help="the original is in the Bin")
     n = sub.add_parser("draft-new")
     n.add_argument("--to", required=True)
     n.add_argument("--subject", required=True)
@@ -470,11 +505,15 @@ def main():
         print(read(args.id, mailbox, args.max) or "NOT FOUND")
     elif args.cmd == "trash":
         print("trashed" if trash(args.id, mailbox) else f"NOT FOUND in {mailbox}")
+    elif args.cmd == "clean-drafts":
+        gone = trash_sent_drafts()
+        print(f"trashed {len(gone)} sent draft(s): {' '.join(gone)}" if gone else "no sent drafts left over")
     elif args.cmd == "draft-reply":
         text = sys.stdin.read()
         if not text.strip():
             sys.exit("Reply text goes on stdin; got nothing.")
-        print(f"draft saved to {folder('drafts')}" if draft_reply(args.id, text) else "NOT FOUND in inbox")
+        box = "sent" if args.sent else "trash" if args.trash else "inbox"
+        print(f"draft saved to {folder('drafts')}" if draft_reply(args.id, text, box) else f"NOT FOUND in {box}")
     elif args.cmd == "draft-new":
         text = sys.stdin.read()
         if not text.strip():

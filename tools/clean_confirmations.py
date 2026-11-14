@@ -68,7 +68,8 @@ CONFIRMATION = re.compile(
     r"|what's next|application (was )?(successfully )?submitted|received your application"
     r"|thanks? for (your )?application|thank you for your application|we got your application"
     r"|application confirmation|your application (is|was) (complete|received)|successfully applied"
-    r"|thanks? for submitting your application|^job application for ", re.I)
+    r"|thanks? for submitting your application|^job application for "
+    r"|confirmation of your application|application acknowledg(e)?ment", re.I)
 # Receipts from ATS mailers whose subject is just "<role> - <company>" (Workable). Only treated as a
 # receipt when it lands on the same day as the application, because the same mailer also sends
 # rejections and interview invites, which must never be auto-trashed.
@@ -76,7 +77,8 @@ RECEIPT_SENDERS = re.compile(r"(candidates|inbound)\.workablemail\.com", re.I)
 # A confirmation-shaped subject is kept unprocessed by the confirmation path if it also matches
 # one of these - it needs the user's eyes (handled instead, deliberately, by --reject) or is
 # simply not a job-application email at all.
-KEEP = re.compile(r"unfortunately|not (be )?moving forward|regret|activate|verify your|interview", re.I)
+KEEP = re.compile(r"unfortunately|not (be )?moving forward|regret|activate|verify your|interview"
+                  r"|next steps|questionnaire|assessment", re.I)
 # Genuine final-rejection language only - never matches an interview invite or a request for info.
 REJECTION = re.compile(
     r"unfortunately|not (be )?moving forward|decided not to (progress|move forward)"
@@ -195,14 +197,20 @@ def open_rows_for_rejection():
     return [r for r in rows if (r.get("status") or "").strip().lower() in OPEN_FOR_REJECTION]
 
 
-def matches(mail, rows):
-    """Applied rows whose company appears in the email's subject or sender."""
+def matches(mail, rows, loose=True):
+    """Rows whose company appears in the email's subject or sender.
+
+    `loose` also accepts the company's first word ("Acme" for "Acme Robotics"). Rejections pass
+    loose=False: a first word like "Remote" or "Global" turns up in unrelated mail, and a wrong hit
+    there marks the wrong row rejected."""
     hay = norm(mail["subject"] + " " + mail["sender"])
+    # The first-word match skips the address: "hire" in no-reply@hire.eu.lever.co is not "Hire Feed".
+    hay_loose = norm(mail["subject"] + " " + re.sub(r"<[^>]*>", " ", mail["sender"]))
     hits = []
     for r in rows:
         name = norm(r["company"])
-        if name and (re.search(rf"\b{re.escape(name)}\b", hay) or re.search(rf"\b{re.escape(name.split()[0])}\b", hay)
-                     and len(name.split()[0]) > 3):
+        if name and (re.search(rf"\b{re.escape(name)}\b", hay) or loose and len(name.split()[0]) > 3
+                     and re.search(rf"\b{re.escape(name.split()[0])}\b", hay_loose)):
             hits.append(r)
     # Prefer the most recent application(s) to that company.
     if hits:
@@ -229,12 +237,18 @@ def handle_rejections(days, do_delete):
         subject = mail["subject"]
         if not REJECTION.search(subject) or REJECTION_KEEP.search(subject):
             continue
-        hits = matches(mail, rows)
+        hits = matches(mail, rows, loose=False)
         if not hits:
             print(f"REJECTION, no open tracker row matched (kept): {mail['date']} | {mail['sender']} | {subject}")
             continue
-        if len(hits) > 1:
-            print(f"REJECTION matched {len(hits)} open rows, ambiguous (kept): {subject}")
+        # matches() keeps only the latest application to a company; with two open roles there the
+        # email has to name the role, or the wrong one gets closed.
+        same_company = [r for r in rows if norm(r["company"]) == norm(hits[0]["company"])]
+        if len(same_company) > 1:
+            words = set(norm(subject).split())
+            hits = [r for r in same_company if _role_share(r["role"], words) >= 0.6]
+        if len(hits) != 1:
+            print(f"REJECTION matched {len(hits) or len(same_company)} open rows, ambiguous (kept): {subject}")
             continue
         row = hits[0]
         label = f"{row['company']} / {row['role']}"
@@ -252,6 +266,7 @@ def handle_rejections(days, do_delete):
         target["status"] = "rejected"
         target["notes"] = "; ".join(filter(None, [target.get("notes"), note]))
         write_tracker(fields, all_rows)
+        rows = open_rows_for_rejection()  # a second email for the same row must not re-file it
         ok = trash(mail)
         print(("rejected+trashed: " if ok else "tracker updated, email NOT trashed: ") + f"{subject}  ->  {label}")
 
@@ -297,14 +312,23 @@ def is_receipt(mail, rows):
 
 def confirmation_pass(days, do_delete):
     rows = applied_rows()
+    found = []
     for mail in inbox(days):
-        subject = mail["subject"]
         if not is_receipt(mail, rows):
             continue
-        hits = [(r, folder(r)) for r in matches(mail, rows)]
-        hits = [(r, p) for r, p in hits if p]
+        hits = [(r, p) for r in matches(mail, rows) if (p := folder(r))]
         if not hits:
-            print(f"UNMATCHED (kept): {mail['date']} | {mail['sender']} | {subject}")
+            print(f"UNMATCHED (kept): {mail['date']} | {mail['sender']} | {mail['subject']}")
+            continue
+        found.append((mail, hits))
+    # "Thank you for your application to X" is also how many ATSs word a rejection, with the decision
+    # only in the body. Read the bodies once and keep anything that carries rejection wording.
+    bodies = gmail.read_many([m["id"] for m, _ in found], "inbox", 1500, links=False) if found else {}
+    for mail, hits in found:
+        subject = mail["subject"]
+        if REJECTION.search(bodies.get(mail["id"], "")):
+            print(f"RECEIPT-SHAPED but the body reads like a rejection (kept, file by hand): "
+                  f"{mail['date']} | {mail['sender']} | {subject}")
             continue
         names = ", ".join(p.name for _, p in hits)
         if not do_delete:
@@ -323,6 +347,12 @@ _ROLE_STOP = {"the", "and", "for", "of", "a", "an", "senior", "staff", "principa
 
 def _role_tokens(role):
     return [w for w in norm(role).split() if w not in _ROLE_STOP and (len(w) > 2 or w.isdigit())]
+
+
+def _role_share(role, words):
+    """Share of the role's own words found in `words` (0.0 when the role has none)."""
+    toks = _role_tokens(role)
+    return sum(w in words for w in toks) / len(toks) if toks else 0.0
 
 
 def _trash_scan(days):
@@ -349,6 +379,8 @@ def _decision_text(subject, body):
     """
     if LINKEDIN_SUBJECT.match(subject):
         return ""
+    # "This email was sent via Ashby": the ATS, not the company (Ashby is also a company people apply to).
+    body = re.sub(r"\b(?:sent via|powered by)\s+[\w.]+", " ", body, flags=re.I)
     hit = REJECTION.search(body)
     if not hit:
         return body[:300]
@@ -394,8 +426,7 @@ def handle_trash_outcomes(days, do_delete):
         words = set(hay.split())
 
         def role_share(r):
-            toks = _role_tokens(r["role"])
-            return sum(w in words for w in toks) / len(toks) if toks else 0.0
+            return _role_share(r["role"], words)
 
         hits = [r for r in rows if norm(r["company"]) and re.search(rf"\b{re.escape(norm(r['company']))}\b", hay)]
         if not hits:
@@ -404,6 +435,12 @@ def handle_trash_outcomes(days, do_delete):
         # the one this email is about. The role's own words have to appear too.
         confirmed = [r for r in hits if role_share(r) >= 0.6]
         if not confirmed:
+            # Already filed: a closed row for this company and role. The Bin keeps the email 14 days, and
+            # without this every cycle re-flagged it.
+            if any(role_share(r) >= 0.6 and (r.get("status") or "").strip().lower() not in OPEN_FOR_REJECTION
+                   and norm(r["company"]) and re.search(rf"\b{re.escape(norm(r['company']))}\b", hay)
+                   for r in read_tracker()[1]):
+                continue
             print(f"TRASH rejection, role not confirmed (not filed): {m['date']} | {subject} -> "
                   + "; ".join(f"{r['company']} / {r['role']}" for r in hits))
             continue
@@ -594,11 +631,13 @@ def main():
     if args.trash_alert:
         if not args.reason:
             sys.exit("--trash-alert needs --reason (every role in it sent, or skipped with a reason)")
-        mail = next((m for m in inbox(args.days + 7, refresh=True) if m["id"] == args.trash_alert), None)
+        mail = next((m for m in inbox(max(args.days, 120), refresh=True) if m["id"] == args.trash_alert), None)
         if not mail:
             sys.exit("No inbox message with that id")
+        if not trash(mail):
+            sys.exit("NOT trashed (Gmail refused the move)")
         _log_alert(mail, args.reason)
-        print("trashed" if trash(mail) else "NOT FOUND in inbox")
+        print("trashed")
         return
 
     import time

@@ -69,6 +69,14 @@ class ParseMailDateTests(unittest.TestCase):
         self.assertIsNone(cc._parse_mail_date(""))
 
 
+class MatchesTests(unittest.TestCase):
+    def test_first_word_match_ignores_the_sender_address(self):
+        rows = [{"company": "Hire Loop", "date": "2026-10-05"}, {"company": "Globex", "date": "2026-10-31"}]
+        mail = {"subject": "Thank you for your application to Globex", "sender": "Globex <no-reply@hire.eu.lever.co>"}
+        self.assertEqual([r["company"] for r in cc.matches(mail, rows)], ["Globex"])
+        self.assertEqual(cc.matches(mail, rows[:1]), [])
+
+
 class ConfirmationPassTests(Sandbox):
     def test_receipt_is_logged_then_trashed(self):
         today = now()[:10]
@@ -97,6 +105,38 @@ class RejectionTests(Sandbox):
         self.assertEqual(fake.trashed, ["7"])
         self.assertIn(",rejected,", self.tracker.read_text())
 
+    def test_two_open_roles_at_one_company_need_the_role_named(self):
+        self.rows(("2026-10-20", "Acme", "Frontend Engineer", "applied"),
+                  ("2026-10-01", "Acme", "Design Engineer", "applied"))
+        self.use(FakeGmail(inbox=[{"id": "7", "date": now(), "sender": "Acme <jobs@acme.com>",
+                                   "subject": "Unfortunately, your Design Engineer application at Acme"}]))
+        cc.handle_rejections(3, True)
+        text = self.tracker.read_text()
+        self.assertIn("Design Engineer,,,rejected", text)
+        self.assertIn("Frontend Engineer,,,applied", text)
+
+    def test_company_first_word_alone_does_not_file_a_rejection(self):
+        self.rows(("2026-10-20", "Remote Technology", "Frontend Engineer", "applied"))
+        fake = self.use(FakeGmail(inbox=[{"id": "7", "date": now(), "sender": "jobs@other.io",
+                                          "subject": "Unfortunately we will not move forward - Senior Remote React role"}]))
+        cc.handle_rejections(3, True)
+        self.assertEqual(fake.trashed, [])
+        self.assertIn(",applied,", self.tracker.read_text())
+
+
+class ReceiptBodyTests(Sandbox):
+    def test_receipt_subject_with_rejection_body_is_kept(self):
+        self.rows((now()[:10], "Acme", "Product Designer", "applied"))
+        (self.apps / "acme_product_designer").mkdir()
+        fake = self.use(FakeGmail(inbox=[{"id": "9", "date": now(), "sender": "Acme <no-reply@greenhouse.io>",
+                                          "subject": "Thank you for your application to Acme"}],
+                                  bodies={"9": "We have decided to pursue other candidates for this role."}))
+        cc.confirmation_pass(3, True)
+        self.assertEqual(fake.trashed, [])
+
+    def test_next_steps_subject_is_not_a_receipt(self):
+        self.assertFalse(cc.is_receipt({"subject": "Application received - next steps at Acme",
+                                        "sender": "x", "date": now()}, []))
 
 
 class TrashOutcomeTests(Sandbox):
@@ -151,6 +191,32 @@ class TrashOutcomeTests(Sandbox):
         text = self.tracker.read_text()
         self.assertIn("Hooli,,Senior Front-End Software Engineer,,,interview", text)
         self.assertIn("Acme,,Product Designer,,,rejected", text)
+
+    def test_rejection_already_filed_is_not_flagged_again(self):
+        # The rejected role is filed; another role at the same company is still open. The Bin keeps the
+        # email for 14 days, and every cycle used to report it as "role not confirmed".
+        self.rows(("2026-11-05", "Initrode", "Senior Front-End Developer", "rejected"),
+                  ("2026-09-22", "Initrode", "Full Stack Engineer", "applied"))
+        mail, body = self._linkedin("Initrode", "Senior Front-End Developer")
+        self.use(FakeGmail(trash=[mail], bodies={"8": body}))
+        with mock.patch("builtins.print") as out:
+            cc.handle_trash_outcomes(14, True)
+        self.assertFalse(any("not filed" in str(c) for c in out.call_args_list), out.call_args_list)
+        self.assertIn("Initrode,,Full Stack Engineer,,,applied", self.tracker.read_text())
+
+    def test_ats_footer_never_names_the_company(self):
+        # Ashby is also a company people apply to: "sent via Ashby" under another company's rejection
+        # must not point at it.
+        self.rows(("2026-11-01", "Vandelay", "Design Engineer", "rejected"),
+                  ("2026-09-24", "Ashby", "Staff Design Engineer - EU", "applied"))
+        body = ("Thank you for applying for the Frontend Engineer role at Vandelay. We will not be moving forward "
+                "with your candidacy.\nVandelay Hiring Team\nThis email was sent via Ashby. Report this email")
+        self.use(FakeGmail(trash=[{"id": "5", "date": now(), "sender": "Vandelay Hiring Team <no-reply@ashbyhq.com>",
+                                   "subject": "Vandelay Application Update"}], bodies={"5": body}))
+        with mock.patch("builtins.print") as out:
+            cc.handle_trash_outcomes(14, True)
+        self.assertFalse(any("Ashby" in str(c) for c in out.call_args_list), out.call_args_list)
+        self.assertIn("Ashby,,Staff Design Engineer - EU,,,applied", self.tracker.read_text())
 
     def test_invite_in_trash_is_flagged_not_filed(self):
         self.rows(("2026-10-01", "Hooli", "Senior Front-End Engineer", "applied"))

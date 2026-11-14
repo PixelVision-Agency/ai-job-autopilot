@@ -20,6 +20,14 @@ class LowCostMarketTests(unittest.TestCase):
         self.assertEqual(low_cost_market({"location": "Buenos Aires, Argentina"}), "Argentina")
         self.assertEqual(low_cost_market({"location": "Remote - LATAM"}), "Latin America")
 
+    def test_posting_that_also_names_an_accepted_market_is_kept(self):
+        self.assertIsNone(low_cost_market({"location": "Bengaluru, India or Remote (Europe)"}))
+        self.assertIsNone(low_cost_market({"location": "India, Poland"}))
+
+    def test_places_sharing_a_low_cost_name_are_kept(self):
+        self.assertIsNone(low_cost_market({"location": "Panama City, FL"}))
+        self.assertIsNone(low_cost_market({"location": "Kochi, Japan"}))
+
     def test_us_places_named_like_low_cost_countries_are_kept(self):
         self.assertIsNone(low_cost_market({"location": "Indianapolis, Indiana"}))
         self.assertIsNone(low_cost_market({"location": "Albuquerque, New Mexico"}))
@@ -61,8 +69,31 @@ class LowCostMarketTests(unittest.TestCase):
     def test_the_rest_of_africa_is_still_dropped(self):
         self.assertEqual(low_cost_market({"location": "Nairobi, Kenya"}), "Kenya")
         self.assertEqual(low_cost_market({"location": "Remote - Africa"}), "Africa")
-        self.assertIsNone(low_cost_market({"location": None, "countries": ["za", "ng"]}))
         self.assertEqual(low_cost_market({"location": None, "countries": ["ng", "ke"]}), "Nigeria")
+        # South Africa is on neither list: alone it keeps nothing, an exempt code keeps the posting.
+        self.assertEqual(low_cost_market({"location": None, "countries": ["za", "ng"]}), "Nigeria")
+        try:
+            allow_places(["za"])
+            self.assertIsNone(low_cost_market({"location": None, "countries": ["za", "ng"]}))
+        finally:
+            allow_places([])
+
+    def test_unknown_or_bare_remote_locations_do_not_keep_a_low_cost_posting(self):
+        # One location missing from the tables (Anguilla, Jordan, Armenia) or a bare "Remote" used to let
+        # almost every low-cost posting through. Only an accepted place keeps one.
+        self.assertEqual(low_cost_market({"location": "Remote; India"}), "India")
+        self.assertEqual(low_cost_market({"locationRestrictions": ["Egypt", "Jordan"]}), "Egypt")
+        self.assertEqual(low_cost_market({"countries": ["am", "kg", "kz", "uz"]}), "Kyrgyzstan")
+        self.assertEqual(low_cost_market({"locationRestrictions": ["Anguilla", "Argentina", "Aruba", "Bolivia"]}),
+                         "Argentina")
+        self.assertIsNone(low_cost_market({"countries": ["br", "pt"]}))
+        self.assertIsNone(low_cost_market({"locationRestrictions": ["Argentina", "Australia", "Brazil"]}))
+
+    def test_latam_in_the_title_is_dropped(self):
+        self.assertEqual(low_cost_market({"title": "Staff Product Engineer, Frontend (LATAM)",
+                                          "location": "Remote - Global"}), "Latin America")
+        self.assertIsNone(low_cost_market({"title": "Remote Product Designer - Building Africa's Cashless Future",
+                                           "location": "Barcelona, Cataluna"}))
 
     def test_indian_it_services_firms_are_dropped_wherever_the_role_is(self):
         job = {"company": "Tata Consultancy Services", "location": "London Area, United Kingdom"}

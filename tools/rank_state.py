@@ -45,6 +45,11 @@ import tempfile
 from datetime import date, timedelta
 from pathlib import Path
 
+try:
+    from tools.job_key import posting_key
+except ImportError:  # run as a script: tools/ itself is on sys.path
+    from job_key import posting_key
+
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "job_scraper" / "seen_jobs.json"
 TRACKER = ROOT / "profile/tracker.csv"
@@ -99,12 +104,9 @@ def parse_iso(value) -> date | None:
         return None
 
 
-def norm(text) -> str:
-    return re.sub(r"[^a-z0-9]", "", str(text or "").lower())
-
-
-def tracker_pairs(path: Path) -> set[tuple[str, str]]:
-    """company+role pairs already in the tracker - out of scope for ranking."""
+def tracker_pairs(path: Path) -> set:
+    """Postings already in the tracker (job_key.posting_key, so "Acme GmbH / Designer" matches
+    "Acme / Designer - Remote") - out of scope for ranking."""
     if not path.is_file():
         return set()
     import csv
@@ -112,9 +114,9 @@ def tracker_pairs(path: Path) -> set[tuple[str, str]]:
     pairs = set()
     with path.open(encoding="utf-8", newline="") as fh:
         for row in csv.DictReader(fh):
-            company, role = norm(row.get("company")), norm(row.get("role"))
-            if company:
-                pairs.add((company, role))
+            key = posting_key(row.get("company") or "", row.get("role") or "")
+            if key:
+                pairs.add(key)
     return pairs
 
 
@@ -141,7 +143,7 @@ def cmd_candidates(args) -> int:
                 continue
         elif status != "new":
             continue
-        if (norm(entry.get("company")), norm(entry.get("title"))) in excluded:
+        if posting_key(str(entry.get("company") or ""), str(entry.get("title") or "")) in excluded:
             skipped_tracker += 1
             continue
         if args.focus:

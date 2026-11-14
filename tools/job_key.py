@@ -139,13 +139,18 @@ _TITLE_NOISE = {"remote", "friendly", "hybrid", "onsite", "site", "on", "m", "f"
 TRACKER = ROOT / "profile/tracker.csv"
 
 
+def posting_key(company: str, title: str) -> tuple | None:
+    """company+title with legal suffixes and location/gender noise removed; None when either is empty.
+    Two pairs with the same key are the same job, so callers can put keys in a set."""
+    c = tuple(t for t in slugify(company).split("-") if t and t not in _LEGAL)
+    t = frozenset(w for w in slugify(title).split("-") if w and w not in _TITLE_NOISE)
+    return (c, t) if c and t else None
+
+
 def same_posting(company_a: str, title_a: str, company_b: str, title_b: str) -> bool:
     """True when two company+title pairs are the same job once noise words are ignored."""
-    ca = tuple(t for t in slugify(company_a).split("-") if t and t not in _LEGAL)
-    cb = tuple(t for t in slugify(company_b).split("-") if t and t not in _LEGAL)
-    ta = frozenset(t for t in slugify(title_a).split("-") if t and t not in _TITLE_NOISE)
-    tb = frozenset(t for t in slugify(title_b).split("-") if t and t not in _TITLE_NOISE)
-    return bool(ca) and ca == cb and bool(ta) and ta == tb
+    key = posting_key(company_a, title_a)
+    return key is not None and key == posting_key(company_b, title_b)
 
 
 def tracker_matches(company: str, title: str, rows: list) -> list:

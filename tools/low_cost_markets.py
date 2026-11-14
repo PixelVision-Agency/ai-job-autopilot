@@ -2,13 +2,16 @@
 """Recognise postings from low-cost labour markets, which are skipped at search time.
 
 A posting located only in these markets is hiring at local rates (rate arbitrage), so /scrape
-drops it before fit scoring. A posting that also lists an acceptable location, such as your home
-region or worldwide remote, is kept.
+drops it before fit scoring. A posting that also names an accepted place (a higher-cost country or
+region such as Europe, or an exempt place below) is kept. Places the tool does not know, and a bare
+"Remote", count for neither side, so they never keep a posting that otherwise names only low-cost
+markets.
 
 Exceptions: a place whose name contains a low-cost region (for example a country inside a broad
 region such as "Africa") can be exempted by listing it, one name per line, in
 `profile/allowed_markets.txt` (lines starting with # are comments). Exempt postings reach
-evaluation instead of being dropped; any salary floor is applied there.
+evaluation instead of being dropped; any salary floor is applied there. A two-letter ISO code on its
+own line (for example `za`) exempts that country on boards that report country codes.
 
 Usage: bun run <portal cli> search ... --format json | python3 tools/low_cost_markets.py
 """
@@ -45,7 +48,7 @@ _ALIASES.update({"brasil": "Brazil", "viet nam": "Vietnam", "latam": "Latin Amer
 # as "Greater Coimbatore Area". Only names no European or US place shares.
 _PLACES = {
     "India": ("bengaluru", "bangalore", "hyderabad", "pune", "chennai", "mumbai", "noida", "gurugram",
-              "gurgaon", "delhi", "kolkata", "ahmedabad", "coimbatore", "kochi", "cochin",
+              "gurgaon", "delhi", "kolkata", "ahmedabad", "coimbatore", "cochin",
               "thiruvananthapuram", "trivandrum", "jaipur", "chandigarh", "mohali", "indore", "nagpur",
               "lucknow", "bhubaneswar", "vadodara", "visakhapatnam", "mysuru", "mysore", "mangaluru",
               "karnataka", "maharashtra", "telangana", "tamil nadu", "kerala", "uttar pradesh",
@@ -67,20 +70,53 @@ _PLACES = {
 }
 for _market, _names in _PLACES.items():
     _ALIASES.update({name: _market for name in _names})
+# Places whose names contain a low-cost market but are not in it ("Panama City" is in Florida).
+_BUILTIN_EXEMPT = ("panama city",)
+# A segment that also names one of these is open to an accepted market ("Bengaluru, India or
+# Remote (Europe)", "India, Poland"), so the posting is kept. Higher-cost countries and regions;
+# profile/allowed_markets.txt adds to it.
+# ponytail: countries and regions only; "Mexico City or Madrid" still drops, add cities if that bites.
+_ACCEPTED_BASE = (
+    "europe", "european", "eu", "eea", "emea", "dach", "nordics", "benelux", "worldwide", "anywhere",
+    "global", "united kingdom", "uk", "england", "scotland", "wales", "ireland", "united states", "usa",
+    "us", "canada", "australia", "new zealand", "japan", "singapore", "israel", "south korea",
+    "hong kong", "united arab emirates", "uae", "austria", "belgium", "bulgaria", "croatia", "cyprus",
+    "czechia", "czech republic", "denmark", "estonia", "finland", "france", "germany", "greece",
+    "hungary", "italy", "latvia", "lithuania", "luxembourg", "malta", "netherlands", "poland",
+    "portugal", "romania", "slovakia", "slovenia", "spain", "sweden", "norway", "switzerland", "iceland")
+# The same places as country codes (freehire's `countries`).
+_ACCEPTED_CODES_BASE = frozenset(
+    "at be bg hr cy cz dk ee fi fr de gr hu ie it lv lt lu mt nl pl pt ro sk si es se no ch is li gb uk "
+    "us ca au nz jp sg il kr hk ae".split())
+ACCEPTED = "accepted"  # a place that keeps the posting, as opposed to a market name or None (unknown)
+
 ALLOWED_FILE = Path(__file__).resolve().parent.parent / "profile" / "allowed_markets.txt"
 _PATTERN = None
+_ACCEPTED = None
+_ACCEPTED_CODES = _ACCEPTED_CODES_BASE
+
+
+def _words(names) -> re.Pattern:
+    """One pattern for whole place names, longest first so a longer name wins."""
+    return re.compile(r"\b(" + "|".join(sorted(map(re.escape, names), key=len, reverse=True)) + r")\b")
 
 
 def allow_places(names) -> None:
     """Exempt places whose names contain a low-cost region (e.g. a city inside a broad region).
 
-    The pattern tries longer names first, so an exempt name matches whole and resolves to no market.
+    An exempt name matches whole and resolves to no market, and it counts as accepted, so a posting
+    that names it is kept. A two-letter entry is a country code for boards that report codes.
     """
-    global _PATTERN
+    global _PATTERN, _ACCEPTED, _ACCEPTED_CODES
+    names = [_plain(str(n)).strip() for n in names if str(n).strip()]
+    codes = {n for n in names if len(n) == 2 and n.isalpha()}
+    places = [n for n in names if n not in codes]
     for key in [k for k, v in _ALIASES.items() if v is None]:
         del _ALIASES[key]
-    _ALIASES.update({_plain(str(n)).strip(): None for n in names if str(n).strip()})
-    _PATTERN = re.compile(r"\b(" + "|".join(sorted(map(re.escape, _ALIASES), key=len, reverse=True)) + r")\b")
+    _ALIASES.update({n: None for n in (*_BUILTIN_EXEMPT, *places)})
+    _PATTERN = _words(_ALIASES)
+    _ACCEPTED = _words((*_ACCEPTED_BASE, *places))
+    _ACCEPTED_CODES = _ACCEPTED_CODES_BASE | codes
 
 
 def _load_allowed() -> list[str]:
@@ -105,12 +141,19 @@ allow_places(_load_allowed())
 
 
 def _text_market(segment: str) -> str | None:
+    if _ACCEPTED.search(_plain(segment)):
+        return ACCEPTED
     match = _PATTERN.search(_plain(segment).replace("new mexico", ""))
     return _ALIASES[match.group(1)] if match else None
 
 
-def _all_low_cost(markets: list[str | None]) -> str | None:
-    return markets[0] if markets and all(markets) else None
+def _all_low_cost(places: list[str | None]) -> str | None:
+    """A low-cost market when one is named and no accepted place is. Unknown places ("Remote",
+    "Anguilla", "Jordan") count for neither: when they counted as acceptable, a single unknown name
+    in a list let almost every low-cost posting through."""
+    if ACCEPTED in places:
+        return None
+    return next((p for p in places if p), None)
 
 
 def low_cost_market(job: dict) -> str | None:
@@ -120,9 +163,13 @@ def low_cost_market(job: dict) -> str | None:
         return "Indian IT services"
     if re.search(r"\bindia\s*$", company):
         return "India"
+    title = _plain(job.get("title") or "")
+    if re.search(r"\b(latam|latin america)\b", title) and not _ACCEPTED.search(title):
+        return "Latin America"
     # Structured fields win over the display text: freehire's country codes, Himalayas' restrictions.
     if job.get("countries"):
-        return _all_low_cost([COUNTRIES.get(str(code).lower()) for code in job["countries"]])
+        codes = [str(code).lower() for code in job["countries"]]
+        return _all_low_cost([ACCEPTED if code in _ACCEPTED_CODES else COUNTRIES.get(code) for code in codes])
     if job.get("locationRestrictions"):
         return _all_low_cost([_text_market(str(name)) for name in job["locationRestrictions"]])
     segments = [part for part in re.split(r"[;|]", job.get("location") or "") if part.strip()]

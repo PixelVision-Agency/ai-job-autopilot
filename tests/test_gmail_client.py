@@ -128,6 +128,11 @@ class PureHelperTests(unittest.TestCase):
         body = g.build_reply(raw, "Yes").get_body(preferencelist=("html",)).get_content()
         self.assertIn("Can you do &lt;Tuesday&gt;?", body)
 
+    def test_build_reply_to_own_sent_message_goes_to_its_recipient(self):
+        raw = (b"From: Alex Example <alex@example.com>\r\nTo: Pat <pat@example.com>\r\nSubject: Follow-up\r\n"
+               b"Message-ID: <m2@x.com>\r\nContent-Type: text/plain; charset=utf-8\r\n\r\nAny news?")
+        self.assertEqual(g.build_reply(raw, "Checking in")["To"], "Pat <pat@example.com>")
+
     def test_build_reply_keeps_existing_re_prefix(self):
         raw = HTML_ALERT.replace(b"Subject: Solutions", b"Subject: RE: Solutions")
         self.assertEqual(g.build_reply(raw, "x")["Subject"], "RE: Solutions Architect at Acme")

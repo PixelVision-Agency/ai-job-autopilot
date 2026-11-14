@@ -105,6 +105,13 @@ class Candidates(RankStateCase):
         self.assertEqual([row["key"] for row in out["selected"]], ["b"])
         self.assertEqual(out["excluded_by_tracker"], 1)
 
+    def test_tracker_match_ignores_legal_suffix_and_remote_tag(self):
+        self.write_state({"a": entry(company="Acme", title="Senior Designer - Remote")})
+        tracker = self.tmp / "tracker.csv"
+        tracker.write_text("date,company,role\n2026-08-01,Acme GmbH,Senior Designer\n", encoding="utf-8")
+        out = self.run_tool("candidates", "--tracker", str(tracker))
+        self.assertEqual(out["selected"], [])
+
     def test_focus_filters_on_title_company_and_stored_fit_notes(self):
         self.write_state(
             {
