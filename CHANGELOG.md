@@ -48,7 +48,10 @@ This project is derived from [MadsLorentzen/ai-job-search](https://github.com/Ma
 
 ### Fixed
 
-- CI never ran: it was triggered on `master`, the default branch is `main`.
+- CI never ran: it was triggered on `master`, the default branch is `main`. The Python test job now
+  installs `requirements.txt` and Chromium, and the placeholder check looks for the tokens in
+  `profile.example/profile.md` (the old ones left `CLAUDE.md` and `04-job-evaluation.md` with the
+  move to `profile/`).
 - Mail cleanup: rejections match the full company name only, two open roles at one company need the
   role named, receipt-shaped rejections are kept, ATS footers no longer name the company, filed
   rejections in the Bin are not re-flagged.
