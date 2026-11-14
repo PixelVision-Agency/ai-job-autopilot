@@ -204,7 +204,7 @@ def matches(mail, rows, loose=True):
     loose=False: a first word like "Remote" or "Global" turns up in unrelated mail, and a wrong hit
     there marks the wrong row rejected."""
     hay = norm(mail["subject"] + " " + mail["sender"])
-    # The first-word match skips the address: "hire" in no-reply@hire.eu.lever.co is not "Hire Feed".
+    # The first-word match skips the address: "hire" in no-reply@hire.eu.lever.co is not "Hire Loop".
     hay_loose = norm(mail["subject"] + " " + re.sub(r"<[^>]*>", " ", mail["sender"]))
     hits = []
     for r in rows:

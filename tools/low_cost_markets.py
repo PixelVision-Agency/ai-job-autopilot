@@ -11,7 +11,7 @@ Exceptions: a place whose name contains a low-cost region (for example a country
 region such as "Africa") can be exempted by listing it, one name per line, in
 `profile/allowed_markets.txt` (lines starting with # are comments). Exempt postings reach
 evaluation instead of being dropped; any salary floor is applied there. A two-letter ISO code on its
-own line (for example `za`) exempts that country on boards that report country codes.
+own line (for example `jo`) exempts that country on boards that report country codes.
 
 Usage: bun run <portal cli> search ... --format json | python3 tools/low_cost_markets.py
 """

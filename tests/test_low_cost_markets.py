@@ -70,11 +70,11 @@ class LowCostMarketTests(unittest.TestCase):
         self.assertEqual(low_cost_market({"location": "Nairobi, Kenya"}), "Kenya")
         self.assertEqual(low_cost_market({"location": "Remote - Africa"}), "Africa")
         self.assertEqual(low_cost_market({"location": None, "countries": ["ng", "ke"]}), "Nigeria")
-        # South Africa is on neither list: alone it keeps nothing, an exempt code keeps the posting.
-        self.assertEqual(low_cost_market({"location": None, "countries": ["za", "ng"]}), "Nigeria")
+        # Jordan is on neither list: alone it keeps nothing, an exempt code keeps the posting.
+        self.assertEqual(low_cost_market({"location": None, "countries": ["jo", "ng"]}), "Nigeria")
         try:
-            allow_places(["za"])
-            self.assertIsNone(low_cost_market({"location": None, "countries": ["za", "ng"]}))
+            allow_places(["jo"])
+            self.assertIsNone(low_cost_market({"location": None, "countries": ["jo", "ng"]}))
         finally:
             allow_places([])
 

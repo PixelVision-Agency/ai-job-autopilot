@@ -156,6 +156,7 @@ documented coverage matches the user's country and language.
 | `freehire-search` | tech roles, many countries | technical role family |
 | `adzuna-search` | ~11 markets (US, UK, DE, NL, CA, FR, IT, AT, ES, AU, NZ and others; see its SKILL.md) and salary data | user lives in or targets a covered country; needs free API keys in `.env` (see `.env.example`) |
 | `jobindex-search`, `jobnet-search`, `jobdanmark-search`, `jobbank-search` (Danish academic roles; **not** Job Bank Canada) | Denmark only, Danish-language postings | only if the user targets Denmark and reads Danish. Not default. |
+| `ats-boards-search` | the Greenhouse, Ashby and Lever boards of companies the user names | the user has target companies; write them to `profile/ats-companies.txt` (format in the skill's `companies.example.txt`), checking each board URL resolves |
 
 **Name collision:** the bundled `jobbank-search` is Akademikernes Jobbank (jobbank.dk, Denmark). It has
 nothing to do with Job Bank Canada (jobbank.gc.ca); never propose it for a Canadian search.
