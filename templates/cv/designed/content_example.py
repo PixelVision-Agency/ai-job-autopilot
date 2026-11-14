@@ -12,7 +12,7 @@ and overrides only what the role needs - see template.py for the skeleton.
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 NAME = "Alex Example"
-HEADLINE = "Product Engineer · Front-end, UI/UX & AI"
+HEADLINE = "Product Engineer · React, Design Systems & AI"
 
 CONTACT = {
     "location": "Example City, Country",
@@ -25,55 +25,55 @@ CONTACT = {
 }
 
 PROFILE = (
-    "Product engineer with 10+ years of experience designing and building websites, web apps and mobile apps, "
-    "from Figma to production. Proven track record of turning complex requirements into clear, usable interfaces, "
-    "building them in Vue and React, and integrating AI features and automations that take repetitive work off "
-    "people's hands. Experienced collaborating with clients, product teams and developers, and owning products "
-    "from scoping to launch. Skilled in UI/UX design, design systems, front-end development and AI integration."
+    "Product engineer with 9 years of experience designing and building web and mobile products, "
+    "from Figma to production. Known for turning messy requirements into simple interfaces, building "
+    "them in React and TypeScript, and adding AI features where they save people real work. Has worked "
+    "in an agency, as a freelancer and inside a product team, owning features from the first sketch to "
+    "the release. Skilled in UI/UX design, design systems, front-end development and LLM integration."
 )
 
 # Order matters: the designed CV renders these top to bottom in the sidebar.
 SKILLS = [
-    ("Artificial Intelligence", ["AI Integration", "LLM APIs", "Prompt Engineering", "AI-Assisted Development", "Agentic Workflows"]),
-    ("Automation", ["Workflow Automation", "API Integration", "n8n", "Make", "Zapier"]),
-    ("Design", ["UI/UX Design", "Design Systems", "Wireframing & Prototyping", "Responsive & Accessible Design", "User Testing & Feedback"]),
+    ("Artificial Intelligence", ["LLM APIs", "AI Feature Design", "Prompt Engineering", "Model Evaluation", "AI-Assisted Development"]),
+    ("Automation", ["Workflow Automation", "API Integration", "Webhooks", "n8n", "Zapier"]),
+    ("Design", ["UI/UX Design", "Design Systems", "Wireframing & Prototyping", "Usability Testing", "Accessible Design (WCAG)"]),
     (
         "Development",
-        ["Web & Mobile App Development", "JavaScript", "TypeScript", "Vue.js", "Nuxt", "React", "Next.js", "React Native", "Python", "Tailwind"],
+        ["Web & Mobile App Development", "TypeScript", "JavaScript", "React", "Next.js", "Vue.js", "Nuxt", "React Native", "Node.js", "Tailwind"],
     ),
     (
         "Product & Business",
-        ["Product Design & Strategy", "Requirements Gathering & Scoping", "Bug Investigation & Root Cause Analysis", "Client Communication", "Cross-Functional Collaboration"],
+        ["Product Discovery", "Requirements & Scoping", "Estimation & Planning", "Client Communication", "Cross-Functional Collaboration"],
     ),
-    ("Tools", ["Figma", "Sketch", "Photoshop", "Claude Code", "Cursor"]),
+    ("Tools", ["Figma", "Storybook", "Linear", "Claude Code", "Cursor"]),
 ]
 
 # The ATS CV shows a short two-column list instead of the categories above.
 ATS_SKILLS_LEFT = [
-    "Product Design & Strategy",
-    "Requirements Gathering & Scoping",
-    "User Testing & Feedback",
-    "Bug Investigation & Root Cause Analysis",
-    "AI Integration & Workflow Automation",
+    "Product Discovery & Scoping",
+    "UI/UX Design & Prototyping",
+    "Design Systems (Figma, Storybook)",
+    "Usability Testing",
+    "Accessible Design (WCAG)",
     "Client Communication",
     "Cross-Functional Collaboration",
 ]
 ATS_SKILLS_RIGHT = [
-    "UI/UX Design",
-    "Design Systems",
-    "Wireframing & Prototyping",
-    "Responsive & Accessible Design",
-    "Web App Development",
-    "Mobile App Development",
+    "React & TypeScript",
+    "Next.js, Vue.js, Nuxt",
+    "React Native & Expo",
+    "Node.js & API Integration",
+    "LLM APIs & Prompt Engineering",
+    "Workflow Automation (n8n, Zapier)",
     "AI-Assisted Development (Claude Code, Cursor)",
 ]
 
-LANGUAGES = [("English", "Native"), ("Italian", "Conversational")]
+LANGUAGES = [("English", "Native"), ("German", "Intermediate (B1)")]
 
 # Contact details are shared only on request, with the referee's permission.
 REFERENCES = [
     {"name": "Sam Referee", "role": "Engineering Manager, Example Co"},
-    {"name": "Jordan Sample", "role": "Founder, Sample Marketplace"},
+    {"name": "Jordan Sample", "role": "Creative Director, Example Agency"},
 ]
 REFERENCES_NOTE = "Contact details available upon request."
 
@@ -89,61 +89,58 @@ REFERENCES_NOTE = "Contact details available upon request."
 JOBS = [
     {
         "company": "Example Co",
-        "role": "Product Designer & Front-end Developer",
-        "start": (2021, 3),
+        "role": "Senior Product Engineer",
+        "start": (2022, 5),
         "end": None,
         "location": "Example City, Country",
         "remote": True,
         "sentences": [
-            "Lead UI design for an AI platform where people practise high-stakes workplace conversations through realistic simulations.",
-            "Develop the front end in Vue.js across the conversation player, scenario editor and dashboards.",
-            "Design and build key features, from the step-by-step editor customers use to create their own AI "
-            "conversations to AI-assisted writing, voice controls and a redesigned results screen.",
-            "Build the design-system foundations, connected to Figma, used across a dev team of five to six, plus "
-            "the Nuxt marketing site in three languages.",
+            "Lead UI design for a customer-support platform whose AI drafts replies that support agents review, edit and send.",
+            "Build the front end in React and TypeScript across the shared inbox, the reply composer and the analytics views.",
+            "Designed and built the AI reply composer, from the suggestion panel and tone controls to the feedback that "
+            "shows the team which drafts agents rewrote before sending.",
+            "Set up the component library in Storybook, matched to the Figma design tokens and used by a team of eight "
+            "engineers, and moved the product to one accessible colour system.",
         ],
     },
     {
         "company": "Freelance",
-        "role": "Web Designer / Developer",
-        "start": (2014, 7),
-        "end": None,
+        "role": "Freelance Front-end Developer",
+        "start": (2019, 4),
+        "end": (2022, 4),
         "location": None,
         "remote": True,
         "sentences": [
-            "Design and build websites, web apps and mobile apps for clients, from UI/UX in Figma to production in Vue, "
-            "Nuxt, React, Next.js and React Native.",
-            "Deliver complete products, from B2B platforms with a web dashboard and mobile app to marketplaces with seller "
-            "tools, licensing and payments.",
-            "Manage each project from first call to launch, handling scoping, pricing, timelines and client "
-            "communication, with significant engagements typically running six months.",
-            "Build AI automations that take the repetitive work out of the process, from finding new clients to generating demo sites.",
+            "Designed and built websites and web apps for small businesses and agencies, from wireframes in Figma to "
+            "production in React, Next.js and Vue.",
+            "Delivered booking systems, client portals and online shops, including Stripe checkout and subscription billing.",
+            "Ran each project from first call to handover, handling scoping, estimates, timelines and client "
+            "communication, with typical engagements of two to four months.",
+            "Built n8n automations with LLM APIs that sorted inbound leads and drafted first-pass project proposals.",
         ],
     },
     {
-        "company": "Sample Marketplace",
-        "role": "Founder & Designer / Developer",
-        "start": (2016, 1),
-        "end": (2020, 4),
-        "location": None,
-        "remote": True,
+        "company": "Example Agency",
+        "role": "Web Designer & Developer",
+        "start": (2017, 9),
+        "end": (2019, 3),
+        "location": "Example City, Country",
+        "remote": False,
         "sentences": [
-            "Founded and ran a two-sided digital marketplace, owning every product decision.",
-            "Designed the platform and hired developers for the first version, then learned to build it myself, rebuilding "
-            "the front end in Vue.js with a friend handling the back end.",
-            "Ran the business day to day: recruiting and onboarding sellers, setting pricing and licensing terms, "
-            "integrating Stripe and PayPal payments and handling customer support.",
-            "It's the project that turned me into a developer.",
+            "Designed and built responsive marketing sites and campaign pages for the agency's retail and hospitality clients.",
+            "Turned the agency's page designs into reusable templates, so new client sites launched in days rather than weeks.",
+            "Moved the agency's sites onto one shared set of components and documented how to use them.",
+            "Wrote the agency's front-end coding guidelines and reviewed other developers' pull requests.",
         ],
     },
     {
         "company": "Example Studio",
-        "role": "Graphic Designer (Internship)",
-        "start": (2013, 9),
-        "end": (2013, 10),
+        "role": "Design Intern",
+        "start": (2016, 6),
+        "end": (2016, 8),
         "location": "Example City, Country",
         "remote": False,
-        "sentences": ["Designed magazines and flyers and edited photos during a school internship."],
+        "sentences": ["Designed social media graphics and helped redesign the studio's own website during a summer internship."],
     },
 ]
 
@@ -155,49 +152,47 @@ JOBS = [
 PROJECTS = [
     {
         "name": "Example App One",
-        "descriptor": "Product design & development - desktop workflow automation app",
+        "descriptor": "Personal project - habit-tracking app for iOS and Android",
         "bullets": [
-            "Built a desktop app in SwiftUI and Python that coordinates multi-step content workflows, from media discovery "
-            "and editing to AI-assisted audio and video.",
-            "Designed the full interface and integrated several LLM and media APIs.",
+            "Designed and built a habit tracker in React Native and Expo with an LLM coach that writes a short weekly "
+            "review from the user's own entries.",
+            "Kept every entry on the device and sent the model only a summary, so the coach works without an account.",
         ],
         "card": {
-            "title": "workflow automation app",
-            "description": "Desktop app coordinating multi-step content workflows, from media discovery and editing to AI-assisted audio and video.",
-            "stack": ["SwiftUI", "Python", "LLM & media APIs"],
+            "title": "habit-tracking app",
+            "description": "Habit tracker for iOS and Android with an LLM coach that writes a weekly review from the user's own entries.",
+            "stack": ["React Native", "Expo", "LLM APIs"],
         },
     },
     {
         "name": "Example App Two",
-        "descriptor": "Product design & development - mobile app for iOS and Android",
+        "descriptor": "Personal project - browser extension for long email threads",
         "bullets": [
-            "Designed and built an app in React Native and Expo that estimates what a second-hand item is worth from a "
-            "single photo, combining AI with live marketplace prices.",
-            "Compared several AI models against real sold listings to choose the most accurate one, launching the app in 8 languages.",
+            "Built a browser extension in TypeScript that summarises long email threads and lists the questions still open in them.",
+            "Compared three models on 200 of my own threads before choosing one, weighing accuracy against cost per summary.",
         ],
         "card": {
-            "title": "iOS & Android app",
-            "description": "Estimates what a second-hand item is worth from a single photo, combining AI with live marketplace prices.",
-            "stack": ["React Native", "Expo", "Vision models", "Marketplace APIs"],
+            "title": "email-thread extension",
+            "description": "Browser extension that summarises long email threads and lists the questions still open in them.",
+            "stack": ["TypeScript", "Browser Extensions", "LLM APIs"],
         },
     },
     {
         "name": "Example Client Platform",
-        "descriptor": "Client project - B2B travel platform, web dashboard and mobile app",
+        "descriptor": "Client project - booking system for a chain of fitness studios",
         "bullets": [
-            "Designed the manager dashboard and mobile app for a B2B travel platform agencies use to manage bookings, "
-            "collections and operations across offices.",
-            "Built the front end of the web app in React and the mobile app in React Native.",
+            "Designed the member app and the staff dashboard for a chain of fitness studios that manages classes, "
+            "bookings and memberships.",
+            "Built the dashboard in Next.js and the member app in React Native, with a back-end developer on the client's side.",
         ],
         "card": None,
     },
     {
-        "name": "Example Client Marketplace",
-        "descriptor": "Client project - multi-vendor marketplace, web and mobile app",
+        "name": "Example Client Shop",
+        "descriptor": "Client project - online shop with subscriptions for a coffee roaster",
         "bullets": [
-            "Designed a marketplace and management dashboard for buying and selling digital products on web and mobile.",
-            "Designed and built the full payment flow, including seller commissions and payouts.",
-            "Built the web app in Vue.js and the mobile app in Flutter, working with another developer who handled the back end.",
+            "Designed and built an online shop for a coffee roaster in Nuxt on top of the Shopify Storefront API.",
+            "Added subscription orders with Stripe Billing, which became the client's main source of repeat sales.",
         ],
         "card": None,
     },
@@ -207,20 +202,20 @@ PROJECTS = [
 # (with no school, the degree is shown as the entry title).
 EDUCATION = [
     {
-        "school": "Example Technical Institute",
-        "degree": "Graphic Design Diploma",
-        "start": (2009, 9),
-        "end": (2014, 6),
+        "school": "Example University",
+        "degree": "BSc Media Technology",
+        "start": (2014, 9),
+        "end": (2017, 6),
         "location": "Example City, Country",
-        "sentences": ["Studied layout, typography and design software."],
+        "sentences": ["Studied interaction design, web development and user research."],
     },
     {
-        "school": "Example High School",
-        "degree": "Exchange Semester",
-        "start": (2013, 1),
-        "end": (2013, 6),
-        "location": "Example Town, USA",
-        "sentences": ["Completed a semester at an American high school as an exchange student."],
+        "school": "Example College",
+        "degree": "Foundation Diploma in Art & Design",
+        "start": (2013, 9),
+        "end": (2014, 6),
+        "location": "Example City, Country",
+        "sentences": ["Built a portfolio in illustration, typography and photography."],
     },
 ]
 
@@ -237,10 +232,10 @@ CERTIFICATIONS = []
 METADATA = {
     "title": f"{NAME} - {HEADLINE}",
     "author": NAME,
-    "subject": f"CV of {NAME}, product engineer working across UI/UX design, front-end development and AI integration",
+    "subject": f"CV of {NAME}, product engineer working across UI/UX design, React front-end development and AI features",
     "keywords": ", ".join([
-        "Product Engineer", "UI/UX Design", "Front-end Development", "Design Systems", "Figma",
-        "Vue.js", "Nuxt", "React", "Next.js", "React Native", "TypeScript", "JavaScript",
-        "Python", "AI Integration", "LLM APIs", "Workflow Automation", "Remote",
+        "Product Engineer", "UI/UX Design", "Front-end Development", "Design Systems", "Figma", "Storybook",
+        "React", "TypeScript", "Next.js", "Vue.js", "Nuxt", "React Native", "Node.js",
+        "LLM APIs", "Workflow Automation", "Remote",
     ]),
 }

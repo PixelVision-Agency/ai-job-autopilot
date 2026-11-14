@@ -15,7 +15,7 @@ sys.path.insert(0, str(TEMPLATE))
 # The presets are written for the example content; ignore any profile/cv_content.py.
 os.environ["JOB_KIT_EXAMPLE_CONTENT"] = "1"
 
-DEVELOPER_LINE = "It's the project that turned me into a developer."
+GUIDELINES_LINE = "Wrote the agency's front-end coding guidelines and reviewed other developers' pull requests."
 
 
 def application_module(body):
@@ -35,33 +35,34 @@ class ReorderBuildsOnThePreset(unittest.TestCase):
         # The overridden job: the string as given, the int resolved against content_base.
         self.assertEqual(jobs["Freelance"], [
             "Rewritten freelance sentence.",
-            "Manage each project from first call to launch, handling scoping, pricing, timelines and client "
-            "communication, with significant engagements typically running six months.",
+            "Ran each project from first call to handover, handling scoping, estimates, timelines and client "
+            "communication, with typical engagements of two to four months.",
         ])
         # Jobs the module didn't name keep the product_designer preset's version.
-        self.assertEqual(jobs["Sample Marketplace"][0],
-                         "Designed a two-sided digital marketplace and ran it, owning every product decision.")
-        self.assertNotIn(DEVELOPER_LINE, jobs["Sample Marketplace"])
+        self.assertEqual(jobs["Example Agency"][0],
+                         "Designed responsive marketing sites and campaign pages for retail and hospitality "
+                         "clients, and built them too.")
+        self.assertNotIn(GUIDELINES_LINE, jobs["Example Agency"])
         self.assertEqual(jobs["Example Co"][-1],
-                         "Develop the front end in Vue.js across the conversation player, scenario "
-                         "editor and dashboards, so the designs ship as built.")
+                         "Build the front end in React and TypeScript across the shared inbox, reply composer "
+                         "and analytics views, so the designs ship as built.")
 
     def test_successive_overrides_accumulate(self):
         jobs = application_module(
             "from presets.product_designer import *\n"
             "from presets._shared import reorder\n"
             "JOBS = reorder(Freelance=['First override.'])\n"
-            "JOBS = reorder({'Sample Marketplace': ['Second override.']})\n"
+            "JOBS = reorder({'Example Agency': ['Second override.']})\n"
         )
         self.assertEqual(jobs["Freelance"], ["First override."])
-        self.assertEqual(jobs["Sample Marketplace"], ["Second override."])
+        self.assertEqual(jobs["Example Agency"], ["Second override."])
 
     def test_a_preset_still_builds_from_content_base(self):
         import presets.design_engineer as design_engineer
         jobs = {job["company"]: job["sentences"] for job in design_engineer.JOBS}
         # design_engineer reorders Example Co as [2, 0, 3, 1] of the master list.
-        self.assertTrue(jobs["Example Co"][0].startswith("Design and build key features"))
-        self.assertEqual(jobs["Sample Marketplace"][-1], DEVELOPER_LINE)
+        self.assertTrue(jobs["Example Co"][0].startswith("Designed and built the AI reply composer"))
+        self.assertEqual(jobs["Example Agency"][-1], GUIDELINES_LINE)
 
 
 if __name__ == "__main__":

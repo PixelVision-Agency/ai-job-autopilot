@@ -49,13 +49,13 @@ TARGET = {
 # The single highest-leverage edit: same facts, aimed at this posting. Keep it to the
 # base profile's length (about 5 sentences) or the designed CV grows past one page.
 # PROFILE = (
-#     "Product engineer with 10+ years ..."
+#     "Product engineer with 9 years ..."
 # )
 
 # --- headline -------------------------------------------------------------------------
-# Match the posting's own title where that is honest: "Product Engineer - UI/UX, Front-end
-# & AI" becomes "Front-end Engineer - Vue, Design Systems & AI" for a Vue-heavy role.
-# HEADLINE = "Product Engineer · UI/UX, Front-end & AI"
+# Match the posting's own title where that is honest: "Product Engineer · React, Design
+# Systems & AI" becomes "Front-end Engineer · React, Design Systems & AI" for a React-heavy role.
+# HEADLINE = "Product Engineer · React, Design Systems & AI"
 
 # --- skills ---------------------------------------------------------------------------
 # Override to push one group up for this posting.
@@ -72,9 +72,9 @@ TARGET = {
 # wants something specific at the top. Rewriting a sentence is allowed; inventing one is not.
 #
 # JOBS = reorder({"Example Co": [
-#     "Develop the front end in Vue.js across the conversation player, scenario editor and dashboards.",
-#     "Lead UI design for an AI platform where people practise high-stakes workplace conversations through realistic simulations.",
-#     "Build the design-system foundations, connected to Figma, and the Nuxt marketing site in three languages.",
+#     "Build the front end in React and TypeScript across the shared inbox, the reply composer and the analytics views.",
+#     "Lead UI design for a customer-support platform whose AI drafts replies that support agents review, edit and send.",
+#     "Set up the component library in Storybook, matched to the Figma design tokens and used by a team of eight engineers.",
 # ]})
 
 # --- project cards --------------------------------------------------------------------

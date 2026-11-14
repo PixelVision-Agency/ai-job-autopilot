@@ -18,7 +18,7 @@ WRITING RULES (03-writing-style.md is the source of truth; this is the short ver
 - **Offer the engagement flexibility once, in the closing paragraph**, whenever the posting
   carries a country restriction or reads as payroll-constrained: you are happy to be hired as an
   employee, or to invoice through your own company (if you have one), whichever is simpler for
-  them. Phrase it as a choice they get, never as a condition he attaches, and skip it entirely
+  them. Phrase it as a choice they get, never as a condition you attach, and skip it entirely
   when the posting has no such obstacle. See your engagement-model notes in profile/.
 """
 

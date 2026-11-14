@@ -36,7 +36,7 @@ for _name, _default in (("PROJECTS", []), ("REFERENCES", []), ("REFERENCES_NOTE"
 
 # ── rendering helpers shared by the builders ─────────────────────────────────────
 def _ym(value):
-    """Normalise a date to (year, month or None). Accepts None, 2014, (2014,), (2014, None), (2014, 7)."""
+    """Normalise a date to (year, month or None). Accepts None, 2019, (2019,), (2019, None), (2019, 4)."""
     if value is None or value == () or value == "":
         return None
     if isinstance(value, int):

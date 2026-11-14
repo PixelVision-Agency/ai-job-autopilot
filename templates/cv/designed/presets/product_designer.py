@@ -12,18 +12,18 @@ Design Systems Designer.
 from content_base import *  # noqa: F401,F403
 from ._shared import reorder, skills
 
-HEADLINE = "Product Designer · UI/UX, Design Systems & AI Products"
+HEADLINE = "Product Designer · UI/UX, Design Systems & AI Features"
 
 # The portfolio link is not repeated here: it already sits in the header line of both CVs,
 # and a sentence about it costs a line.
 PROFILE = (
-    "Product designer with 10+ years designing interfaces for web and mobile, from wireframes and "
-    "prototypes through user feedback to a shipped product. At Example Co I lead the UI design "
-    "for an AI platform where people practise high-stakes workplace conversations, including the "
-    "editor customers use to build their own conversations and the design-system "
-    "foundations connected to Figma. I design AI products specifically: what an LLM feature should "
-    "feel like, and what to show when it is thinking, wrong or unsure. Because I also build the "
-    "front end, my designs arrive as working interfaces rather than handoffs."
+    "Product designer with 9 years designing interfaces for web and mobile, from wireframes and "
+    "prototypes through usability testing to a shipped product. At Example Co I lead the UI design "
+    "for a customer-support platform whose AI drafts replies, including the composer where agents "
+    "review those drafts and the design tokens the whole product shares. I design AI features "
+    "specifically: what a suggestion should look like, how much of it to show, and what happens when "
+    "the model is wrong. Because I also build the front end, my designs arrive as working interfaces "
+    "rather than handoffs."
 )
 
 # Design leads the sidebar. Development stays - it is the differentiator - but second.
@@ -34,18 +34,18 @@ ATS_SKILLS_LEFT = [
     "UI/UX Design",
     "Design Systems",
     "Wireframing & Prototyping",
-    "User Testing & Feedback",
-    "Responsive & Accessible Design",
-    "Product Design & Strategy",
-    "Requirements Gathering & Scoping",
+    "Usability Testing",
+    "Accessible Design (WCAG)",
+    "Product Discovery",
+    "Requirements & Scoping",
 ]
 ATS_SKILLS_RIGHT = [
-    "Figma (Sketch, Photoshop)",
-    "Designing AI & LLM Product Features",
+    "Figma & Storybook",
+    "Designing AI & LLM Features",
     "Design-to-Code / Figma to Production",
     "HTML, CSS, JavaScript, TypeScript",
-    "Vue.js, Nuxt, React, Next.js",
-    "React Native, Expo, Flutter",
+    "React, Next.js, Vue.js",
+    "React Native & Expo",
     "Client Communication",
 ]
 
@@ -58,24 +58,25 @@ JOBS = reorder(
             0,
             2,
             3,
-            "Develop the front end in Vue.js across the conversation player, scenario "
-            "editor and dashboards, so the designs ship as built.",
+            "Build the front end in React and TypeScript across the shared inbox, reply composer "
+            "and analytics views, so the designs ship as built.",
         ],
-        # Design framing, and without the closing "turned me into a developer" line, which
-        # points the wrong way for a design-led CV.
-        "Sample Marketplace": [
-            "Designed a two-sided digital marketplace and ran it, owning every product decision.",
+        # Design framing, and without the closing code-review line, which points the wrong way
+        # for a design-led CV.
+        "Example Agency": [
+            "Designed responsive marketing sites and campaign pages for retail and hospitality "
+            "clients, and built them too.",
             1,
             2,
         ],
     },
     Freelance=[
-        "Design websites, web apps and mobile apps for clients, from UI/UX in Figma through "
-        "wireframes and prototypes to the built product.",
-        "Design complete products end to end, from B2B platforms with a web dashboard and mobile "
-        "app to marketplaces with seller tools, licensing and payments.",
-        "Build the front end myself in Vue, Nuxt, React, Next.js and React Native, which "
-        "keeps the shipped interface faithful to the design.",
+        "Designed websites and web apps for small businesses and agencies, from wireframes and "
+        "prototypes in Figma to the built product.",
+        "Designed complete products end to end, from booking systems and client portals to online "
+        "shops with subscription billing.",
+        "Built the front end myself in React, Next.js and Vue, which kept the shipped interface "
+        "faithful to the design.",
         2,
     ],
 )

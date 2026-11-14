@@ -40,6 +40,8 @@ This project is derived from [MadsLorentzen/ai-job-search](https://github.com/Ma
 - `/reset` wipes `profile/` (and optionally `documents/`) after explicit confirmation.
 - `/add-portal` registers new boards in `profile/portals.md`.
 - `/setup` is now an alias for `/onboard`.
+- The example CV (`templates/cv/designed/content_example.py`) and its four role presets describe a
+  fully fictional candidate: new employers, products, timeline, education and side projects.
 - `/apply` writes a cover letter only when the application route takes one, never reuses sentences
   from earlier letters, names at most one or two gaps, and its grounding audit checks years per
   technology, stack per employer, titles, shipped claims, adjacent work and salary one by one.

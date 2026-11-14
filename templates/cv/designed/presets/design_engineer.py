@@ -10,15 +10,15 @@ Technologist, Product Engineer at a design-led company.
 from content_base import *  # noqa: F401,F403
 from ._shared import reorder, skills
 
-HEADLINE = "Design Engineer · Product, UI/UX, Front-end & AI"
+HEADLINE = "Design Engineer · UI/UX, Design Systems & React"
 
 PROFILE = (
-    "Design engineer with 10+ years designing interfaces and shipping the front-end "
-    "code behind them, from Figma to production. At Example Co I lead the UI design for an AI "
-    "platform and build it in Vue.js, including the scenario editor customers use to author their "
-    "own AI conversations and the design-system foundations the product is built on. I work across "
-    "React, TypeScript, Vue and React Native, and I integrate AI into products rather than around "
-    "them. I do my best work owning a product surface end to end, design decisions and shipped "
+    "Design engineer with 9 years designing interfaces and shipping the front-end code behind them, "
+    "from Figma to production. At Example Co I lead the UI design for a customer-support platform "
+    "and build it in React, including the AI reply composer agents use all day and the Storybook "
+    "component library matched to our Figma tokens. I work across React, TypeScript, Next.js and "
+    "React Native, and I treat accessibility and design tokens as part of the build, not a review "
+    "step. I do my best work owning a product surface end to end, design decisions and shipped "
     "code in the same pair of hands."
 )
 
@@ -29,18 +29,18 @@ ATS_SKILLS_LEFT = [
     "Design Systems in Code",
     "Figma to Production Front-end",
     "Wireframing & Prototyping",
-    "Responsive & Accessible Design",
-    "User Testing & Feedback",
+    "Accessible Design (WCAG)",
+    "Usability Testing",
 ]
 ATS_SKILLS_RIGHT = [
     "React & TypeScript",
-    "Vue.js, Nuxt, Next.js",
-    "HTML & CSS",
-    "AI Integration & LLM APIs",
+    "Next.js, Vue.js, Nuxt",
+    "HTML, CSS, Tailwind",
+    "Storybook",
+    "LLM APIs",
     "AI-Assisted Development (Claude Code)",
-    "Requirements Gathering & Scoping",
 ]
 
-# Pure reorder, by index into content_base: lead with the feature he designed AND built,
+# Pure reorder, by index into content_base: lead with the feature designed AND built,
 # then the design leadership, the design system, and the stack last.
 JOBS = reorder({"Example Co": [2, 0, 3, 1]})

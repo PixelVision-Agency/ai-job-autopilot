@@ -11,37 +11,36 @@ Use for: Frontend Engineer, Front-End Developer, Product Engineer, Software Engi
 from content_base import *  # noqa: F401,F403
 from ._shared import reorder, skills
 
-HEADLINE = "Product Engineer · Front-end, UI/UX & AI Integration"
+HEADLINE = "Front-end Product Engineer · React, TypeScript & Design Systems"
 
 PROFILE = (
-    "Product engineer with 10+ years building websites, web apps and mobile apps, from "
-    "Figma to production. At Example Co I develop the front end of an AI platform in Vue.js "
-    "across the conversation player, scenario editor and dashboards, and I built the design-system "
-    "foundations the product is built on. I work across Vue, Nuxt, React, Next.js, TypeScript, "
-    "React Native and Flutter. I implement AI into products rather than around them: LLM APIs, "
-    "agentic workflows and automations, shipped in two products of my own as well as at work. "
-    "Because I design as well as build, I can take a requirement to a shipped interface without a "
-    "handoff in the middle."
+    "Product engineer with 9 years building web and mobile products, from Figma to production. "
+    "At Example Co I build the front end of a customer-support platform in React and TypeScript, "
+    "across the shared inbox, the AI reply composer and the analytics views, and I set up the "
+    "component library the team builds with. I work across React, Next.js, Vue, Nuxt, React Native "
+    "and Node.js, and I add LLM features where they save people real work, at work and in two side "
+    "projects of my own. Because I design as well as build, a requirement reaches a shipped "
+    "interface without a handoff in the middle."
 )
 
 SKILLS = skills("Development", "Design", "Artificial Intelligence", "Product & Business", "Tools")
 
 ATS_SKILLS_LEFT = [
     "Front-end Development",
-    "JavaScript & TypeScript",
-    "Vue.js, Nuxt, React, Next.js",
-    "React Native, Expo, Flutter",
+    "React & TypeScript",
+    "Next.js, Vue.js, Nuxt",
+    "React Native & Expo",
     "HTML, CSS, Tailwind",
-    "Web & Mobile App Development",
-    "Bug Investigation & Root Cause Analysis",
+    "Node.js & API Integration",
+    "Accessible Front-end (WCAG)",
 ]
 ATS_SKILLS_RIGHT = [
     "Design Systems & Component Libraries",
     "UI/UX Design (Figma)",
-    "Responsive & Accessible Design",
-    "AI Integration & LLM APIs",
-    "Workflow Automation & Agentic Workflows",
-    "Requirements Gathering & Scoping",
+    "Storybook",
+    "LLM APIs & Prompt Engineering",
+    "Workflow Automation",
+    "Requirements & Scoping",
     "Cross-Functional Collaboration",
 ]
 

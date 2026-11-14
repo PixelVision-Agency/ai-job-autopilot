@@ -53,13 +53,13 @@ def build(extra=""):
 
 class DateForms(unittest.TestCase):
     def test_year_only_forms(self):
-        for form in ((2014,), 2014, (2014, None)):
-            self.assertEqual(content_base.ats_dates(form, None), "2014 - Present")
-            self.assertEqual(content_base.figma_dates(form, form), "2014 - 2014")
+        for form in ((2019,), 2019, (2019, None)):
+            self.assertEqual(content_base.ats_dates(form, None), "2019 - Present")
+            self.assertEqual(content_base.figma_dates(form, form), "2019 - 2019")
 
     def test_year_month_and_missing(self):
-        self.assertEqual(content_base.ats_dates((2014, 7), (2016, 1)), "07/2014 - 01/2016")
-        self.assertEqual(content_base.figma_dates((2014, 7), None), "Jul 2014 - Present")
+        self.assertEqual(content_base.ats_dates((2019, 4), (2022, 1)), "04/2019 - 01/2022")
+        self.assertEqual(content_base.figma_dates((2019, 4), None), "Apr 2019 - Present")
         self.assertEqual(content_base.ats_dates(None, None), "")
         self.assertEqual(content_base.figma_dates(None, (2020, None)), "2020")
 
