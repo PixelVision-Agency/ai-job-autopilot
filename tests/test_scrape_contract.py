@@ -63,6 +63,13 @@ class ScrapeSearchOutputContractTests(unittest.TestCase):
         failures: list[str] = []
         for portal in PORTAL_CLIS:
             search_ts = portal / "cli" / "src" / "commands" / "search.ts"
+            cli_py = portal / "cli.py"  # stdlib Python portals (ats-boards-search)
+            if not search_ts.exists() and cli_py.exists():
+                emitted = set(re.findall(r'"([a-zA-Z_][a-zA-Z0-9_]*)":', cli_py.read_text(encoding="utf-8")))
+                missing = sorted(contract - emitted)
+                if missing:
+                    failures.append(f"{portal.name}: missing {missing} in search output")
+                continue
             if not search_ts.exists():
                 failures.append(f"{portal.name}: no cli/src/commands/search.ts")
                 continue

@@ -1,0 +1,12 @@
+# Company job boards read by cli.py. Copy this file to profile/ats-companies.txt (gitignored)
+# and list the companies you want to watch: "<ats> <board slug>", one per line.
+#
+# The slug is the path segment of the company's public board URL:
+#   ashby       jobs.ashbyhq.com/<slug>
+#   greenhouse  job-boards.greenhouse.io/<slug>  (or boards.greenhouse.io/<slug>)
+#   lever       jobs.lever.co/<slug>
+#
+# Examples (uncomment or replace with your own targets):
+# ashby example-company
+# greenhouse example-company
+# lever example-company
