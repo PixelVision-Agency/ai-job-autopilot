@@ -11,7 +11,7 @@ next to `portal-scout`); a Gmail problem must never stop portal discovery.
 1. **Search the inbox** for the last 3 days (or since the newest `date` already in
    `profile/job_alerts/alerts.json`, whichever is longer; 3 days when the file does not exist yet):
    ```bash
-   python3 tools/gmail_client.py search 'in:inbox newer_than:3d from:(jobalerts-noreply@linkedin.com OR joinrs.com OR nijobs.com OR adzuna OR himalayas.app OR remote.co OR match.indeed.com OR match.jobgether.com OR welcometothejungle OR glassdoor)' --limit 100
+   python3 tools/gmail_client.py search 'in:inbox newer_than:3d from:(jobalerts-noreply@linkedin.com OR jobs-noreply@linkedin.com OR joinrs.com OR nijobs.com OR adzuna OR himalayas.app OR remote.co OR match.indeed.com OR match.jobgether.com OR welcometothejungle OR glassdoor)' --limit 100
    python3 tools/gmail_client.py search 'in:inbox newer_than:3d subject:(job OR jobs OR role OR roles OR vacancies OR matches OR opportunity OR position OR hiring OR engineer OR developer OR designer OR architect) -subject:"your application" -subject:"thanks for applying"' --limit 100
    ```
    The first search covers common alert senders; add new ones here when they appear. The second, broad search catches new alert sources and recruiter
@@ -45,14 +45,21 @@ next to `portal-scout`); a Gmail problem must never stop portal discovery.
    Roles start as `new`, or already `skipped` with a `reason` (duplicate of a sent application,
    skip-on-sight domain from step 7). A whole-email skip (step 8) gets `skip_reason` and no roles.
 5. **Whoever applies or skips a role later updates its `status`**: `sent` only after confirmation
-   evidence, `drafted` when left for the user's review, `skipped` with a `reason`. `/mail-cleanup`
+   evidence, `drafted` when left for the user's review, `skipped` with a `reason`.
+   **A cycle never ends with a role left `new` or `drafted`** (otherwise its alert email sits in the
+   inbox for good). Work only the user can do (an account signup on the employer's site, an Indeed or
+   captcha step, a hybrid role to weigh) goes into the tracker as a `drafted` row whose note names the
+   exact step, and the alert role is set to `skipped` with that reason so the email is trashed. Check
+   a LinkedIn alert role's work mode (the page's Remote/Hybrid/On-site tag) against
+   `profile/deal-breakers.md` before drafting: "Hybrid" in a city outside the commutable places is
+   relocation. `/mail-cleanup`
    trashes an alert email once every role is `sent`/`skipped`, or has a settled tracker row for the
    same posting (same URL in `source`, or same company and role dated on/after the alert); a
    `drafted` role keeps the email in the inbox, and so does an entry whose subject looks like an
    invite or a person's reply.
-6. **Provenance**: when a lead becomes a tracker row, set `channel` to the originating platform
-   (`email-alert`, `LinkedIn`, `Adzuna`, `NIJobs`, or the actual source) and keep the direct job URL
-   in `source`. Add a short note such as `lead from Adzuna email, 2026-09-24`. Every report includes
+6. **Provenance**: when a lead becomes a tracker row, set `channel` to `email-alert` (the fixed
+   vocabulary in `tools/tracker_labels.py`; the platform name goes in the note, not the column) and
+   keep the direct job URL in `source`. Add a short note such as `lead from Adzuna email, 2026-09-24`. Every report includes
    **source platform** and **source URL**; if a lead came from an email but the direct URL points to
    an employer ATS, report both (for example, `LinkedIn email → Ashby application`).
 7. **Skip `jobplacements.com` and `executiveplacements.com` on sight** (default skip list; add your

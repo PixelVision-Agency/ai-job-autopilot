@@ -87,9 +87,10 @@ profile is a per-role blocker; skip it and continue the authorized batch.
 
 ## 2. Inspect and fill the live form
 
-- Read `profile/forms.md` for factual answers.
-  Employment OR B2B invoicing is acceptable; do not force contract status on an employee role.
-  Record actual residence as Italy. Company registration does not answer foreign work rights.
+- Read `profile/forms.md` for factual answers, and add each new answer there as soon as it is given.
+  Engagement type follows the Engagement Model in `profile/profile.md`; do not force contract
+  status on an employee role. Record actual residence from `profile/profile.md`. Company
+  registration does not answer foreign work rights.
 - Use browser UI to fill the form and attach the tailored PDFs. Follow that tool's capability
   and permission model; do not invent upload APIs or switch to hidden HTTP submission calls.
   If the available browser cannot attach files, report the concrete limitation and hand off
@@ -114,6 +115,14 @@ profile is a per-role blocker; skip it and continue the authorized batch.
 - When the upload step comes before the questions (LinkedIn Easy Apply, Workable), step
   through every page first, answer, write `form_answers.json`, run `prepare`, then go Back and
   upload the snapshot file. Answers survive Back/Next.
+- A cover letter goes only where the form has a cover-letter upload or text box (required or
+  optional). If it has one and `/apply` wrote no letter, write it before `prepare` with `/apply`'s
+  letter rules (Step 2's Cover Letter section, the Step 3 reviewer with the letter as the only
+  draft, Step 4, Step 5 for the letter), record its path in the row's `cover_letter_file`, then
+  attach or paste it. A form without that field gets no letter; leave `--cover-letter` off.
+- Creating an account on the employer's site (email and password, or a social login) is a
+  blocker even when the user said "send it": leave the role `drafted` with the exact step in
+  the tracker note and move on.
 
 ### Portal notes (learned 2026-09-24)
 
@@ -122,8 +131,13 @@ profile is a per-role blocker; skip it and continue the authorized batch.
   (`getByRole('dialog')`, `getByRole('radio', {name: question})`), since `document.querySelector`
   finds nothing. Upload the snapshot CV fresh for every role. Every upload has the same simple
   file name, so confirm the resume list grew by one and the first (newest) entry is the one
-  selected. Re-check prefilled contact details and earlier saved answers; LinkedIn reuses them.
-  Untick "Follow <company>" on the review page. The UI language can switch per posting
+  selected. Re-check prefilled contact details and earlier saved answers against
+  `profile/forms.md`; LinkedIn reuses them, and it also prefills the **last cover letter text**
+  you sent, so replace it with this role's letter and read it back. Radios in the dialog can have
+  no accessible names: click the right one through its `label[for=id]` and read the checked
+  state back. Before Submit untick only the "Follow <company>" box, matched by that checkbox's
+  own label starting with "Follow"; never touch any other checkbox (matching nearby text can
+  untick a GDPR consent box). The UI language can switch per posting
   (Italian, Dutch): match fields by structure, not by English labels. Dismissing mid-flow asks
   "Save this application?"; choose Discard.
 - **Ashby.** A typed field can look filled but never reach Ashby's form state (Resend's email,
@@ -143,6 +157,25 @@ profile is a per-role blocker; skip it and continue the authorized batch.
   sheet (`paste_answers_for_arc.txt` in the archive) plus the snapshot CV so they can send it from
   their own browser. Record the result from their confirmation page or email.
 
+- **Greenhouse email security code.** The first Submit can come back HTTP 428 with "A verification
+  code was sent to <email>... enter the 8-character code". It is not a captcha: read the
+  "Security code for your application to <company>" email with `gmail_client.py`, type the code,
+  click Submit once more, then trash the code email.
+- **monday.com forms.** Clicking a dropdown option can hang the Playwright browser. Select by
+  keyboard instead: click the combobox, type a unique part of the option so one remains,
+  ArrowDown, Enter; read the snapshot back. The CV button opens a file chooser: answer it with
+  `browser_file_upload` in a separate call.
+- **Sage HR** (talent.sage.hr): the upload widget keeps files in memory and clears the input, so
+  each `setInputFiles` adds another copy ("2 files selected"). Set the CV once on a fresh page.
+- **Indeed links from alert emails** (`cts.indeed.com/...`) fail in Playwright
+  (`ERR_HTTP_RESPONSE_CODE_FAILURE`), and Indeed's own apply needs the user's login. Look for the
+  posting on the employer's careers site; if it is not there, leave the role `drafted` with the
+  Indeed link in the note for the user instead of retrying.
+- **A logged-in browser for LinkedIn.** If the Playwright browser profile is logged in to LinkedIn
+  (nav items such as "My Network" show on the job page), the whole Easy Apply flow runs there;
+  the own-browser recipe below is the fallback. Only call a LinkedIn role blocked by a login when
+  the page itself shows the login wall.
+
 ### The user's own browser for Lever and LinkedIn (macOS Arc recipe)
 
 The Playwright Chromium is rejected by Lever ("There was an error verifying your application", even after
@@ -155,6 +188,7 @@ the tool for Workable, Ashby, Greenhouse and plain company forms that submit cle
 - Read every field back from the page before handing over. Never click Submit and never solve the captcha: tell the user which tabs are ready.
 - **Easy Apply has no captcha, so Claude clicks Submit itself.** Hand the click to the user only for Lever or any form that shows a captcha.
 - **Only touch tabs you opened, matched by exact URL. Never list, read or script the user's other tabs** (an early scan printed every open tab title; do not repeat it).
+- Arc AppleScript gotchas: `tell t to execute javascript` and `execute t javascript` with a stored tab variable can fail with error -1700, and `execute (first tab whose URL contains ...) javascript` can hang. Open the URL with `make new tab`, tell the user it is there, and run `osascript` calls in a way you can kill (`pkill osascript`).
 - After the user says it is sent, confirm from the `/thanks` page text (read it via `execute javascript`), then record it: `prepare`, `begin` (authorization file noting that the user clicked Submit), `finish --result confirmed` with that page text as evidence. Then run the cleanup.
 
 ### Email-only applications, and a locked browser profile

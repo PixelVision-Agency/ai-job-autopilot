@@ -84,6 +84,10 @@ Key flags:
 - `--jobage <days>` — posted within N days (maps to `posted_within_days`).
 - `--page <n>` — 1-indexed page. Default 1.
 - `--limit <n>` / `-n <n>` — results per page (API limit). Default 25.
+  The API caps a page at 100. For a 14-day sweep pass `--limit 100 --no-description` and, while
+  `meta.total` is above what you have read, repeat with `--page 2`, `--page 3` ...: 20-25 results
+  can cover as little as one day. Pass `--remote` to match the profile's work mode, or most hits
+  may be hybrid or on-site somewhere else.
 - `--format json|table|plain` — default `json`.
 - `--description-format markdown|text|html` — how each result's full description is
   rendered. Default `markdown`, which keeps the posting's headings and requirement

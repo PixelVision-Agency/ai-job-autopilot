@@ -60,7 +60,7 @@ Use the search strategy in `profile/search-queries.md`. By default, run the cate
 bun --version
 ```
 
-If this fails (bun not installed), skip to **1c (WebSearch fallback)** for all portals and note the fallback in the Step 5 output.
+If this fails (bun not installed), skip to **1c (WebSearch fallback)** for all bun portals and note the fallback in the Step 5 output. `ats-boards-search` is plain Python and still runs.
 
 #### 1b. Run CLI tools (primary — run these in parallel where possible)
 
@@ -70,7 +70,7 @@ Discover all installed portal CLI skills by reading every `SKILL.md` found under
 
 For each **enabled** portal skill:
 
-1. Read its `SKILL.md` to find the correct `bun run …` invocation and supported flags.
+1. Read its `SKILL.md` to find the correct invocation (`bun run …`, or `python3 …` for `ats-boards-search`) and supported flags. `ats-boards-search` needs `profile/ats-companies.txt`; its `-q` keywords come from `profile/search-queries.md`.
 2. Translate the query terms from `profile/search-queries.md` into that portal's flag format (e.g. `--key`, `--search-string`, `--query`, filter codes — whatever the portal's SKILL.md specifies).
 3. Scope to the last 14 days using the portal's supported recency **filter** flag (`--jobage`, `--since <YYYY-MM-DD>`, etc. — as documented per portal). A portal with **no recency flag** (jobdanmark offers none) still gets scoped: every portal's search output carries a `date` field, so filter client-side — drop results whose `date` is older than 14 days after the call returns, and never invent a flag the portal's SKILL.md does not document (the CLIs reject unknown flags). `--order PublicationDate` is a sort, and a sort is not a filter — pairing it with a `--limit` is a defensible approximation on a portal that offers nothing better (jobnet), but apply the client-side date filter on top all the same.
 4. Cap results to ~20 per call using the portal's limit flag. For LinkedIn specifically,
@@ -87,7 +87,7 @@ For each **enabled** portal skill:
    not dedup-recorded, ranked or presented. Report only the count on a `dropped (low-cost markets):`
    line in Step 5. Skip this step when the filter is off.
 
-Run the portals in parallel with each other (separate background shell jobs, or the Agent tool), but run ONE portal's own queries one after another: himalayas-search answers HTTP 429 when its recipe's queries are fired together (seen 2026-10-04), and a single combined `OR` query is the fallback. Collect all `results` arrays into a single pool for Step 2, keeping each result tagged with its source portal skill (for Step 2 `detail` lookups).
+Run the portals in parallel with each other (separate background shell jobs, or the Agent tool), but run ONE portal's own queries one after another. Write every launch command out literally (no `eval`, heredocs or commands held in variables): an unattended run refuses a command it cannot check, and that stops the scrape; if the launch is refused anyway, run the portals one by one and list any that did not run. Within a portal: himalayas-search answers HTTP 429 when its recipe's queries are fired together (seen 2026-10-04), and a single combined `OR` query is the fallback. Collect all `results` arrays into a single pool for Step 2, keeping each result tagged with its source portal skill (for Step 2 `detail` lookups).
 
 If a CLI tool exits with a non-zero code, log the error message and continue — do not abort the whole search.
 

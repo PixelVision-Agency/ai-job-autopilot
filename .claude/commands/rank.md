@@ -40,6 +40,8 @@ Then read the scoring framework and profile **once**:
 
 State how many jobs will be ranked and how many are deferred before proceeding.
 
+**Liveness sweep first.** Run `python3 tools/liveness.py <url> <url> ...` over every job in the batch (one call, no tokens spent). Mark each `"status": "closed"` job `expired` straight away with its `reason` and leave it out of the agents' lists; `unknown` jobs go to the agents as usual.
+
 ---
 
 ## Step 2: Batch-Fetch and Score
